@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const UserVerificationSchema = new Schema({
-  userID: String,
-  uniqueID: String,
-  createdAt: Date,
-  expiresAt: Date,
+  userId: { type: String, required: true },
+  uniqueString: { type: String, required: true },
+  createdAt: { type: Date, required: true },
+  expiresAt: { type: Date, required: true },
 });
 
 const UserVerification = mongoose.model(

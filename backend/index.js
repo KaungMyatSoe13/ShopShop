@@ -15,6 +15,19 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+// Backward-compatibility redirects for older emailed links without /api/auth prefix
+app.get("/user/verify/:userId/:uniqueString", (req, res) => {
+  const { userId, uniqueString } = req.params;
+  res.redirect(`/api/auth/user/verify/${userId}/${uniqueString}`);
+});
+app.get("/user/verified", (req, res) => {
+  res.redirect(
+    `/api/auth/user/verified${
+      req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : ""
+    }`
+  );
+});
+
 app.get("/", (req, res) => {
   res.send("Backend API is running!");
 });

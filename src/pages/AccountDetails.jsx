@@ -1,9 +1,56 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProfileSideBar from "../components/ProfileSideBar";
 
 function AccountDetails() {
+  const [user, setUser] = useState({
+    email: "kaungsoe132004@gmail.com",
+    verified: false,
+  });
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+
+  // Example: fetch user info from backend
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setUser({
+            email: data.email,
+            verified: data.verified,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  //handle resend
+  const handleResend = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/user/resend-verification",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: "kaungsoe132004@gmail.com" }),
+        }
+      );
+      const data = await response.json(); // will succeed now
+      alert(data.message);
+    } catch (err) {
+      alert("Failed to resend verification email: " + err.message);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -56,15 +103,43 @@ function AccountDetails() {
                   </p>
                 </div>
 
+                {/* Email + Verification */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Email address *
                   </label>
-                  <input
-                    type="email"
-                    defaultValue="kaungsoe132004@gmail.com"
-                    className="w-full border rounded px-3 py-2"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="email"
+                      value={user.email}
+                      className="flex-grow border rounded px-3 py-2"
+                      disabled
+                    />
+                    {user.verified ? (
+                      <span className="text-green-600 font-semibold">
+                        Verified ✅
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResend}
+                        className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+                        disabled={resendLoading}
+                      >
+                        {resendLoading ? "Sending..." : "Resend Verification"}
+                      </button>
+                    )}
+                  </div>
+                  {!user.verified && resendMessage && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {resendMessage}
+                    </p>
+                  )}
+                  {!user.verified && !resendMessage && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Your email hasn't been verified yet.
+                    </p>
+                  )}
                 </div>
 
                 <hr className="my-4" />
