@@ -1,0 +1,144 @@
+import { React, useState, useEffect, useRef } from "react";
+import "../index.css";
+import { NavLink, useNavigate } from "react-router-dom";
+import { HiOutlineArrowLongRight } from "react-icons/hi2";
+import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
+import { GrSearch } from "react-icons/gr";
+
+function ShowCase() {
+  const [allProducts, setAllProducts] = useState([]); // store all products from API
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const scrollRef = useRef();
+  const navigate = useNavigate();
+
+  // Fetch all products once on mount
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const res = await fetch("https://fakestoreapi.com/products");
+        const data = await res.json();
+        setAllProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      }
+    };
+
+    fetchAllProducts();
+  }, []);
+
+  // Debounce the searchTerm input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms debounce time
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  // Filter products using debounced search term (case insensitive)
+  const filteredProducts = allProducts.filter(
+    (item) =>
+      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      item.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  );
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 860, behavior: "smooth" });
+    }
+  };
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -860, behavior: "smooth" });
+    }
+  };
+
+  const handleClick = (id) => {
+    navigate(`/product/${id}`);
+  };
+
+  return (
+    <div className="ml-7.5 flex-col flex w-full h-190 sm:h-full sm:flex-row sm:ml-13">
+      {/* LEFT SIDE */}
+      <div className="sm:w-[40%] flex flex-col sm:mb-0 sm:h-full h-[35%]">
+        <div className="flex flex-row items-center gap-1 bg-[#D9D9D9] px-3 py-1 w-[85%] h-[40px] sm:z-10 sm:w-full h-full">
+          <GrSearch />
+          <input
+            type="text"
+            placeholder="Search"
+            className="placeholder:text-right outline-none w-full h-[40px] mr-2"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <span className="text-4xl mt-4 font-bold font-extrabold font-playfair sm:text-3xl">
+          New <br /> Collection
+        </span>
+        <span className="text-xl font-bold font-fairplay font-thin sm:text-lg">
+          Summer
+        </span>
+        <span className="font-bold font-fairplay font-thin text-sm">2025</span>
+        <div className="mb-5 sm:mb-0 flex sm:flex-row items-center gap-3 mt-5 sm:mt-0 h-98">
+          <NavLink
+            to="shop"
+            className="flex justfiy-center items-center h-8 relative bg-[#D9D9D9] sm:mt-68 sm:w-4/5 hover:bg-gray-400 transition-colors duration-300"
+          >
+            <div className="text-black flex items-center font-playfair ml-2 sm:ml-5 sm:text-md py-2 text-sm w-full">
+              Go To Shop
+              <HiOutlineArrowLongRight className="sm:ml-auto sm:text-3xl text-xl ml-5 sm:ml-0 mr-2" />
+            </div>
+          </NavLink>
+          <div
+            className="hidden sm:block sm:mt-68 border border-black"
+            onClick={scrollLeft}
+          >
+            <IoMdArrowDropleft className="text-3xl cursor-pointer" />
+          </div>
+          <div
+            className="hidden sm:block sm:mt-68 border border-black"
+            onClick={scrollRight}
+          >
+            <IoMdArrowDropright className="text-3xl cursor-pointer" />
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE - PRODUCTS */}
+      <div className="flex-grow w-full sm:w-[60%] overflow-x-auto flex flex-row sm:h-[91.3%] pb-0 font-playfair">
+        <div
+          ref={scrollRef}
+          className="object-cover sm:mx-2 flex flex-row flex-wrap sm:flex-nowrap w-[100vw] sm:w-[90%] h-auto border-black overflow-x-scroll sm:ml-5 sm:gap-5 gap-2 items-center mr-5"
+        >
+          {filteredProducts.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleClick(item.id)}
+              className="flex flex-col items-start flex-shrink-0 w-[30vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer"
+            >
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-full h-auto sm:h-[90%] object-contain"
+              />
+              <span className="text-[10px] text-gray-500 sm:text-xs">
+                {item.category}
+              </span>
+              <span className="text-[9px] sm:text-sm font-semibold break-words">
+                {item.title}
+              </span>
+              <span className="text-[12px] sm:text-sm font-bold">
+                ${item.price}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ShowCase;

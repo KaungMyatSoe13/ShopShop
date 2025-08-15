@@ -1,0 +1,126 @@
+const User = require("../models/User");
+const UserVerification = require("../models/UserVerification");
+const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
+require("dotenv").config();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { send } = require("vite");
+const e = require("express");
+
+let transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.AUTH_MAIL,
+    pass: process.env.AUTH_PASS,
+  },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log();
+    console.log("Email service is ready to send messages");
+    console.log(success);
+  }
+});
+
+// Register (Sign Up)
+exports.register = async (req, res) => {
+  const { email, password, name, phone } = req.body;
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      email,
+      password: hashedPassword,
+      name,
+      phone,
+      verified: false,
+    });
+    await user.save().then((result) => {
+      sendVerificationEmail(result, res);
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Login (Sign In)
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid Email" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    res.json({
+      token,
+      user: { email: user.email, name: user.name, phone: user.phone },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const sendVerificationEmail = ({ _id, email }, res) => {
+  const currentUrl = "http://localhost:5000/";
+  const uniqueString = uuidv4() + _id;
+
+  const mailOptions = {
+    from: process.env.AUTH_MAIL,
+    to: email,
+    subject: "Verify your email",
+    html: `<p>Click the link below to verify your email:</p>
+           <a href="${currentUrl}auth/verify/${_id}/${uniqueString}">Verify Email</a>`,
+  };
+
+  const saltRounds = 10;
+  bcrypt
+    .hash(uniqueString, saltRounds)
+    .then((hashUniqueString) => {
+      const newVerification = new UserVerification({
+        userID: _id,
+        uniqueString: hashUniqueString,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+      });
+      newVerification
+        .save()
+        .then(() => {
+          transporter
+            .sendMail(mailOptions)
+            .then(() => {
+              res.json({
+                status: "PENDING",
+                message: "Successfully sent verification email",
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+              res.json({ status: "FAILED" });
+            });
+        })
+        .catch(() => {
+          res.json({
+            status: "FAILED",
+            message: "Couldn't save verification email data",
+          });
+        });
+    })
+    .catch(() => {
+      res.json({
+        status: "FAILED",
+        message: "An error occur while hashing data",
+      });
+    });
+};
