@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 
@@ -12,6 +12,7 @@ function LoginForm() {
   const [signupAcceptPolicy, setSignupAcceptPolicy] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupPasswordTouched, setSignupPasswordTouched] = useState(false);
+  const [signupPhone, setSignupPhone] = useState("");
 
   // State for sign in fields
   const [loginEmail, setLoginEmail] = useState("");
@@ -53,6 +54,7 @@ function LoginForm() {
           name: signupName,
           email: signupEmail,
           password: signupPassword,
+          phone: signupPhone,
         }),
       });
       const data = await response.json();
@@ -62,6 +64,7 @@ function LoginForm() {
         setSignupName("");
         setSignupEmail("");
         setSignupPassword("");
+        setSignupPhone("");
         setSignupAcceptPolicy(false);
         setSignupPasswordTouched(false);
       } else {
@@ -217,12 +220,12 @@ function LoginForm() {
               </button>
 
               <div className="mt-3 flex justify-end text-sm w-80">
-                <a
-                  href="/forgot-password"
+                <Link
+                  to="/forgot-password"
                   className="text-gray-600 hover:underline"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               <div className="flex items-center w-full my-6">
@@ -289,8 +292,8 @@ function LoginForm() {
                 type="number"
                 placeholder="Phone Number"
                 className="mb-2 p-2 border border-black-300 rounded w-80"
-                // value={signupPhone}
-                // onChange={e => setSignupPhone(e.target.value)}
+                value={signupPhone}
+                onChange={(e) => setSignupPhone(e.target.value)}
               />
               <input
                 type="text"

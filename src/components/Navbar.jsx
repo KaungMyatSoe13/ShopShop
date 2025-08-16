@@ -225,16 +225,16 @@ function Navbar() {
                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-32 bg-white shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 delay-100">
                   <ul className="flex flex-col text-gray-400 text-sm">
                     <NavLink
-                      to="/profile"
-                      className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      Profile
-                    </NavLink>
-                    <NavLink
                       to="/profile/order"
                       className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     >
                       Order
+                    </NavLink>
+                    <NavLink
+                      to="/profile"
+                      className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      Profile
                     </NavLink>
                   </ul>
                 </div>

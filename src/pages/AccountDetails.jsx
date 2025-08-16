@@ -5,29 +5,48 @@ import ProfileSideBar from "../components/ProfileSideBar";
 
 function AccountDetails() {
   const [user, setUser] = useState({
-    email: "kaungsoe132004@gmail.com",
+    email: "",
     verified: false,
+    name: "",
+    phone: "",
   });
+  const [loading, setLoading] = useState(true);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
-  // Example: fetch user info from backend
+  // Fetch user info from backend
   useEffect(() => {
     async function fetchUser() {
       try {
         const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          setLoading(false);
+          return;
+        }
+
         const response = await fetch("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
-        const data = await response.json();
+
         if (response.ok) {
+          const data = await response.json();
           setUser({
-            email: data.email,
-            verified: data.verified,
+            email: data.email || "",
+            verified: data.verified || false,
+            name: data.name || "",
+            phone: data.phone || "",
           });
+        } else {
+          console.error("Failed to fetch user:", response.statusText);
         }
       } catch (err) {
         console.error("Failed to fetch user:", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchUser();
@@ -35,21 +54,46 @@ function AccountDetails() {
 
   //handle resend
   const handleResend = async () => {
+    setResendLoading(true);
     try {
       const response = await fetch(
         "http://localhost:5000/api/auth/user/resend-verification",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: "kaungsoe132004@gmail.com" }),
+          body: JSON.stringify({ email: user.email }),
         }
       );
-      const data = await response.json(); // will succeed now
-      alert(data.message);
+      const data = await response.json();
+      if (response.ok) {
+        setResendMessage(data.message);
+        alert(data.message);
+      } else {
+        alert(data.message || "Failed to resend verification email");
+      }
     } catch (err) {
       alert("Failed to resend verification email: " + err.message);
+    } finally {
+      setResendLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <div className="flex flex-1 justify-center items-center">
+          <div className="text-lg">Loading...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Split name into first and last name
+  const nameParts = user.name ? user.name.split(" ") : ["", ""];
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -72,7 +116,7 @@ function AccountDetails() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Kaung Myat"
+                      defaultValue={firstName}
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
@@ -82,7 +126,7 @@ function AccountDetails() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Soe"
+                      defaultValue={lastName}
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
@@ -94,7 +138,7 @@ function AccountDetails() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="kaungsoe132004"
+                    defaultValue={user.name || ""}
                     className="w-full border rounded px-3 py-2"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -116,9 +160,7 @@ function AccountDetails() {
                       disabled
                     />
                     {user.verified ? (
-                      <span className="text-green-600 font-semibold">
-                        Verified ✅
-                      </span>
+                      <span className="text-green-600 font-semibold"></span>
                     ) : (
                       <button
                         type="button"
@@ -140,6 +182,17 @@ function AccountDetails() {
                       Your email hasn't been verified yet.
                     </p>
                   )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Phone number
+                  </label>
+                  <input
+                    type="tel"
+                    defaultValue={user.phone || ""}
+                    className="w-full border rounded px-3 py-2"
+                  />
                 </div>
 
                 <hr className="my-4" />
