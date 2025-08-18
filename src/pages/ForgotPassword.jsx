@@ -46,12 +46,12 @@ function ForgotPassword() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex flex-1 justify-center items-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <div className="max-w-md w-full bg-white  border p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-playfair ">
               Forgot Password
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 font-playfair">
               Enter your email address and we'll send you a link to reset your
               password.
             </p>
@@ -70,14 +70,14 @@ function ForgotPassword() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                 placeholder="Enter your email"
                 required
               />
             </div>
 
             {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+              <div className="bg-green-50  border-green-200 text-green-700 px-4 py-3 rounded">
                 {message}
               </div>
             )}
@@ -91,7 +91,7 @@ function ForgotPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white border text-black py-2 px-4 hover:bg-gray-300 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
@@ -99,8 +99,8 @@ function ForgotPassword() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/login"
-              className="text-blue-600 hover:text-blue-500 text-sm"
+              to="/profile/loginPage"
+              className="text-gray-600 hover:text-gray-400 text-sm"
             >
               Back to Login
             </Link>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
@@ -20,6 +20,82 @@ function LoginForm() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!clientId) {
+        console.error("Google Client ID is not defined in .env!");
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+      });
+
+      // Render Sign In button
+      const signInButton = document.getElementById("googleSignInButton");
+      if (signInButton) {
+        window.google.accounts.id.renderButton(signInButton, {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          width: 250,
+        });
+      }
+
+      // Render Sign Up button
+      const signUpButton = document.getElementById("googleSignUpButton");
+      if (signUpButton) {
+        window.google.accounts.id.renderButton(signUpButton, {
+          theme: "outline",
+          size: "large",
+          text: "signup_with",
+          width: 250,
+        });
+      }
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleCredentialResponse = async (response) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+
+      const data = await res.json();
+      console.log("Response status:", res.status);
+      console.log("Response data:", data);
+
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        alert(data.message || "Google authentication successful!");
+        navigate("/");
+      } else {
+        console.error("Authentication failed:", data);
+        alert("Google authentication failed: " + data.message);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Google authentication failed: " + err.message);
+    }
+  };
 
   // Password validation: min 8 chars, at least one letter and one number
   function isPasswordValid(password) {
@@ -234,17 +310,8 @@ function LoginForm() {
                 <div className="flex-grow h-px bg-gray-300" />
               </div>
 
-              <span>Sign In With</span>
               <div className="flex flex-row justify-center w-80 h-20 gap-10">
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Apple.png" alt="Apple" />
-                </button>
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Facebook.png" alt="Facebook" />
-                </button>
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Google.png" alt="Google" />
-                </button>
+                <div id="googleSignInButton"></div>
               </div>
 
               {/* Mobile toggle link */}
@@ -357,17 +424,8 @@ function LoginForm() {
                 <div className="flex-grow h-px bg-gray-300" />
               </div>
 
-              <span>Sign Up With</span>
               <div className="flex flex-row justify-center w-80 h-20 gap-10">
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Apple.png" alt="Apple" />
-                </button>
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Facebook.png" alt="Facebook" />
-                </button>
-                <button className="w-10 hover:cursor-pointer">
-                  <img src="/images/Google.png" alt="Google" />
-                </button>
+                <div id="googleSignUpButton"></div>
               </div>
 
               {/* Mobile toggle link */}

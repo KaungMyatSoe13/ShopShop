@@ -16,12 +16,12 @@ function AccountDetails() {
 
   // Fetch user info from backend
   useEffect(() => {
-    async function fetchUser() {
+    const fetchUser = async () => {
+      setLoading(true); // optional: ensure loading is true at start
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.error("No token found");
-          setLoading(false);
+          console.warn("No token found");
           return;
         }
 
@@ -32,23 +32,31 @@ function AccountDetails() {
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser({
-            email: data.email || "",
-            verified: data.verified || false,
-            name: data.name || "",
-            phone: data.phone || "",
-          });
-        } else {
-          console.error("Failed to fetch user:", response.statusText);
+        if (!response.ok) {
+          console.error(
+            "Failed to fetch user:",
+            response.status,
+            await response.text()
+          );
+          return;
         }
+
+        const data = await response.json();
+        console.log("Data received from backend:", data);
+
+        setUser({
+          email: data.email ?? "",
+          verified: data.verified ?? false,
+          name: data.name ?? "",
+          phone: data.phone ?? "",
+        });
       } catch (err) {
-        console.error("Failed to fetch user:", err);
+        console.error("Error fetching user:", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     fetchUser();
   }, []);
 
@@ -190,7 +198,8 @@ function AccountDetails() {
                   </label>
                   <input
                     type="tel"
-                    defaultValue={user.phone || ""}
+                    defaultValue={"09" || user.phone} // pre-fill if user.phone exists
+                    placeholder="Your Number" // show this when empty
                     className="w-full border rounded px-3 py-2"
                   />
                 </div>

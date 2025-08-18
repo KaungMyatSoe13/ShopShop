@@ -91,7 +91,7 @@ function ResetPassword() {
             </p>
             <Link
               to="/forgot-password"
-              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+              className="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
             >
               Request New Reset Link
             </Link>
@@ -106,12 +106,14 @@ function ResetPassword() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex flex-1 justify-center items-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <div className="max-w-md w-full bg-white border shadow-md p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-playfair">
               Reset Password
             </h1>
-            <p className="text-gray-600">Enter your new password below.</p>
+            <p className="text-gray-600 font-playfair">
+              Enter your new password below.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -127,7 +129,7 @@ function ResetPassword() {
                 id="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                 placeholder="Enter new password"
                 required
               />
@@ -149,7 +151,7 @@ function ResetPassword() {
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                 placeholder="Confirm new password"
                 required
               />
@@ -170,7 +172,7 @@ function ResetPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white border text-black py-2 px-4 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>
@@ -178,8 +180,8 @@ function ResetPassword() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/login"
-              className="text-blue-600 hover:text-blue-500 text-sm"
+              to="/profile/loginPage"
+              className="text-gray-600 hover:text-gray-400 text-sm"
             >
               Back to Login
             </Link>
