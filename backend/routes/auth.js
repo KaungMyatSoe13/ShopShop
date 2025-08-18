@@ -28,4 +28,7 @@ router.post(
 router.post("/forgot-password", passwordController.forgotPassword);
 router.post("/reset-password", passwordController.resetPassword);
 
+// Google OAuth routes
+router.post("/google", authController.googleAuth);
+
 module.exports = router;
