@@ -86,6 +86,7 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       name,
+      displayName: name,
       phone,
       verified: false,
     });

@@ -3,6 +3,7 @@ const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
+const { changePassword } = require("./userController");
 require("dotenv").config();
 
 // Email transporter for password reset emails
@@ -106,4 +107,63 @@ exports.resetPassword = async (req, res) => {
     console.error("Reset password error:", err);
     res.status(500).json({ message: "Failed to reset password" });
   }
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+
+    // Reset message
+    setPasswordMessage("");
+
+    // Frontend validation
+    if (!newPassword || !confirmPassword) {
+      setPasswordMessage(
+        "Please fill in the new password and confirm password."
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("New password and confirm password do not match.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setPasswordMessage("You must be logged in to change password.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/change-password",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success
+        setPasswordMessage("Password changed successfully ✅");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        // Backend validation errors (wrong current password, weak password, etc.)
+        setPasswordMessage(data.message || "Failed to change password.");
+      }
+    } catch (err) {
+      setPasswordMessage("Something went wrong. Please try again.");
+      console.error("Password change error:", err);
+    }
+  };
 };

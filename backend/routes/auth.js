@@ -13,7 +13,12 @@ router.post("/login", authController.login);
 // User management routes (protected)
 router.get("/me", auth, userController.getMe);
 router.put("/profile", auth, userController.updateProfile);
-router.put("/change-password", auth, userController.changePassword);
+// Use only ONE change-password route
+router.put(
+  "/change-password",
+  auth,
+  userController.changePasswordWithCurrentPassword
+);
 router.delete("/account", auth, userController.deleteAccount);
 
 // Email verification routes

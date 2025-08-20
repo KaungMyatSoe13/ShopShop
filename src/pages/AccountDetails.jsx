@@ -2,26 +2,45 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProfileSideBar from "../components/ProfileSideBar";
+import { FaEyeSlash } from "react-icons/fa6";
+import { FaEye } from "react-icons/fa";
 
 function AccountDetails() {
   const [user, setUser] = useState({
     email: "",
     verified: false,
     name: "",
+    displayName: "",
     phone: "",
   });
   const [loading, setLoading] = useState(true);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
-  // Fetch user info from backend
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const [profileMessage, setProfileMessage] = useState(""); // for success/error
+  const [profileMessageType, setProfileMessageType] = useState("error"); // "error" or "success"
+
   useEffect(() => {
     const fetchUser = async () => {
-      setLoading(true); // optional: ensure loading is true at start
+      setLoading(true); // start loading
       try {
         const token = localStorage.getItem("token");
         if (!token) {
           console.warn("No token found");
+          setLoading(false);
           return;
         }
 
@@ -33,32 +52,67 @@ function AccountDetails() {
         });
 
         if (!response.ok) {
-          console.error(
-            "Failed to fetch user:",
-            response.status,
-            await response.text()
-          );
+          console.error("Failed to fetch user", response.status);
+          setLoading(false);
           return;
         }
 
         const data = await response.json();
-        console.log("Data received from backend:", data);
 
-        setUser({
-          email: data.email ?? "",
-          verified: data.verified ?? false,
-          name: data.name ?? "",
-          phone: data.phone ?? "",
-        });
+        setUser(data);
+        setName(data.name || "");
+        setDisplayName(data.displayName || data.name || "");
+        setPhone(data.phone || "");
       } catch (err) {
-        console.error("Error fetching user:", err);
+        console.error(err);
       } finally {
-        setLoading(false);
+        setLoading(false); // end loading
       }
     };
 
     fetchUser();
   }, []);
+
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+
+    // Clear previous message
+    setProfileMessage("");
+
+    // Frontend validation
+    if (!name || !displayName || !phone) {
+      setProfileMessage("Please fill in all required fields.");
+      setProfileMessageType("error");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, displayName, phone }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setProfileMessage(data.message || "Profile updated successfully ✅");
+        setProfileMessageType("success");
+        setUser(data.user); // update local user state
+      } else {
+        setProfileMessage(data.message || "Failed to update profile.");
+        setProfileMessageType("error");
+      }
+    } catch (err) {
+      console.error(err);
+      setProfileMessage("Something went wrong. Please try again.");
+      setProfileMessageType("error");
+    }
+  };
 
   //handle resend
   const handleResend = async () => {
@@ -74,6 +128,8 @@ function AccountDetails() {
       );
       const data = await response.json();
       if (response.ok) {
+        setPasswordMessage("Password changed successfully");
+
         setResendMessage(data.message);
         alert(data.message);
       } else {
@@ -83,6 +139,60 @@ function AccountDetails() {
       alert("Failed to resend verification email: " + err.message);
     } finally {
       setResendLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+
+    // Client-side validation
+    if (!currentPassword && !newPassword && !confirmPassword) {
+      setPasswordMessage(
+        "Please fill at least one field to change your password"
+      );
+      return;
+    }
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setPasswordMessage("New password and confirm password do not match");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setPasswordMessage("You must be logged in to change password");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/change-password",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPasswordMessage("Password changed successfully ✅");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        // Display backend error (e.g., wrong current password, weak password)
+        setPasswordMessage(data.message || "Password change failed");
+      }
+    } catch (err) {
+      setPasswordMessage("Something went wrong. Please try again.");
     }
   };
 
@@ -98,11 +208,6 @@ function AccountDetails() {
     );
   }
 
-  // Split name into first and last name
-  const nameParts = user.name ? user.name.split(" ") : ["", ""];
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.slice(1).join(" ") || "";
-
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -114,27 +219,18 @@ function AccountDetails() {
               <h1 className="text-2xl font-bold mb-6 font-playfair">
                 Account Details
               </h1>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handlePasswordChange}>
                 <h2 className="text-lg font-semibold">User Informations</h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      First name *
+                      Surname *
                     </label>
                     <input
                       type="text"
-                      defaultValue={firstName}
-                      className="w-full border rounded px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Last name *
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={lastName}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full border rounded px-3 py-2"
                     />
                   </div>
@@ -146,7 +242,8 @@ function AccountDetails() {
                   </label>
                   <input
                     type="text"
-                    defaultValue={user.name || ""}
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
                     className="w-full border rounded px-3 py-2"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -198,10 +295,29 @@ function AccountDetails() {
                   </label>
                   <input
                     type="tel"
-                    defaultValue={"09" || user.phone} // pre-fill if user.phone exists
-                    placeholder="Your Number" // show this when empty
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/, ""))} // remove non-digit chars
+                    placeholder="Your Number"
                     className="w-full border rounded px-3 py-2"
                   />
+                  {profileMessage && (
+                    <p
+                      className={`text-sm mt-2 ${
+                        profileMessageType === "success"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {profileMessage}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleProfileSave}
+                    className="bg-black text-white px-4 py-2 rounded hover:opacity-90 hover:cursor-pointer hover:bg-gray-800 mt-4"
+                  >
+                    Save changes
+                  </button>
                 </div>
 
                 <hr className="my-4" />
@@ -212,33 +328,84 @@ function AccountDetails() {
                   <label className="block text-sm font-medium mb-1">
                     Current password (leave blank to leave unchanged)
                   </label>
-                  <input
-                    type="password"
-                    className="w-full border rounded px-3 py-2"
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      className="w-full border rounded px-3 py-2 pr-10" // pr-10 adds space for the icon
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                    <div className="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                      {showCurrentPassword ? (
+                        <FaEyeSlash
+                          onClick={() => setShowCurrentPassword(false)}
+                        />
+                      ) : (
+                        <FaEye onClick={() => setShowCurrentPassword(true)} />
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     New password (leave blank to leave unchanged)
                   </label>
-                  <input
-                    type="password"
-                    className="w-full border rounded px-3 py-2"
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      className="w-full border rounded px-3 py-2 pr-10" // pr-10 adds space for the icon
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <div className="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                      {showNewPassword ? (
+                        <FaEyeSlash onClick={() => setShowNewPassword(false)} />
+                      ) : (
+                        <FaEye onClick={() => setShowNewPassword(true)} />
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Confirm new password
                   </label>
-                  <input
-                    type="password"
-                    className="w-full border rounded px-3 py-2"
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="w-full border rounded px-3 py-2 pr-10" // pr-10 adds space for the icon
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <div className="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+                      {showConfirmPassword ? (
+                        <FaEyeSlash
+                          onClick={() => setShowConfirmPassword(false)}
+                        />
+                      ) : (
+                        <FaEye onClick={() => setShowConfirmPassword(true)} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  {/* Display password messages */}
+                  {passwordMessage && (
+                    <p
+                      className={`text-sm mt-2 ${
+                        passwordMessage.includes("successfully")
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {passwordMessage}
+                    </p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="bg-black text-white px-4 py-2 rounded hover:opacity-90"
+                  className="bg-black text-white px-4 py-2 rounded hover:opacity-90 hover:cursor-pointer hover:bg-gray-800"
                 >
                   Save changes
                 </button>
