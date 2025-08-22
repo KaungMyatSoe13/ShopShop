@@ -89,6 +89,7 @@ exports.register = async (req, res) => {
       displayName: name,
       phone,
       verified: false,
+      type: "user",
     });
     await user.save().then((result) => {
       sendVerificationEmail(result, res);
@@ -100,7 +101,7 @@ exports.register = async (req, res) => {
 
 // Login (Sign In)
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, type } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid Email" });
@@ -114,12 +115,21 @@ exports.login = async (req, res) => {
     //         .json({ status: "Failed", message: "Email haven't verified yet" });
     //     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { userId: user._id, userType: user.type },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
     res.json({
       token,
-      user: { email: user.email, name: user.name, phone: user.phone },
+      user: {
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        type: user.type,
+      },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

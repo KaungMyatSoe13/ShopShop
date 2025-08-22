@@ -131,6 +131,7 @@ function LoginForm() {
           email: signupEmail,
           password: signupPassword,
           phone: signupPhone,
+          type: "user",
         }),
       });
       const data = await response.json();
@@ -170,10 +171,16 @@ function LoginForm() {
       const data = await response.json();
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        console.log(data.user.type);
+        if (data.user.type === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
         alert("Login successful!");
         setLoginEmail("");
         setLoginPassword("");
-        navigate("/"); // Redirect to home page
       } else {
         setLoginError(data.message || "Login failed");
       }

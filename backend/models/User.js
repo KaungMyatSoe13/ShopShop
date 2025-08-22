@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
     enum: ["manual", "google", "both"],
     default: "manual",
   }, // Track auth method
+  type: { type: String, enum: ["user", "admin"], default: "user" },
 });
 
 module.exports = mongoose.model("User", UserSchema);

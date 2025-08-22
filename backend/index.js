@@ -33,6 +33,7 @@ app.get("/user/verified", (req, res) => {
     }`
   );
 });
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.send("Backend API is running!");
