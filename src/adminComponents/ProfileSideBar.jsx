@@ -33,7 +33,7 @@ function ProfileSideBar() {
               <div className="">
                 <div
                   onClick={() => setShowProductsMenu(!showProductsMenu)}
-                  className="flex items-center text-lg py-3 pl-2 hover:bg-gray-200 cursor-pointer w-full text-center sm:text-left"
+                  className="flex items-center justify-center sm:justify-start text-lg py-3 pl-2 hover:bg-gray-200 cursor-pointer sm:w-full text-center sm:text-left"
                 >
                   <span>{item.name}</span>
                   <RiArrowDropDownLine
@@ -52,7 +52,7 @@ function ProfileSideBar() {
                     <div
                       key={subIdx}
                       onClick={() => navigate(`/admin/${subItem.path}`)}
-                      className="text-md py-2 pl-6 hover:bg-gray-100 cursor-pointer w-full text-center sm:text-left"
+                      className="text-md py-2 pl-6 hover:bg-gray-100 cursor-pointer w-full text-center sm:text-left "
                     >
                       {subItem.name}
                     </div>
@@ -61,7 +61,13 @@ function ProfileSideBar() {
               </div>
             ) : (
               <div
-                onClick={() => navigate(`/admin/${item.path}`)}
+                onClick={() =>
+                  navigate(
+                    item.name === "Logout"
+                      ? "/profile/loginPage"
+                      : `/admin/${item.path}`
+                  )
+                }
                 className="text-lg py-3 pl-2 hover:bg-gray-200 cursor-pointer w-full text-center sm:text-left"
               >
                 {item.name}

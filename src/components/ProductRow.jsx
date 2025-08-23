@@ -12,26 +12,22 @@ function ProductRow({
 
   useEffect(() => {
     const fetchProducts = async () => {
-      let url = "https://fakestoreapi.com/products";
-
-      // Map category slugs to fakestoreapi categories
-      const categoryMap = {
-        men: "men's clothing",
-        women: "women's clothing",
-        kids: "jewelery", // fakestoreapi doesn't have kids category, using jewelery as placeholder
-      };
-
-      if (category !== "all") {
-        const apiCategory = categoryMap[category] || "men's clothing";
-        url = `https://fakestoreapi.com/products/category/${encodeURIComponent(
-          apiCategory
-        )}`;
-      }
-
       try {
-        const res = await fetch(url);
+        const res = await fetch("http://localhost:5000/api/products/by-color"); // Update this URL to match your backend
         const data = await res.json();
-        setProducts(data);
+
+        // Filter by category if needed
+        let filteredProducts = data;
+        if (category !== "all") {
+          filteredProducts = data.filter(
+            (product) =>
+              product.mainCategory
+                .toLowerCase()
+                .includes(category.toLowerCase()) || product.gender === category
+          );
+        }
+
+        setProducts(filteredProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
         setProducts([]);
@@ -64,36 +60,24 @@ function ProductRow({
     <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
       {/* Product Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-6 mt-6">
-        {currentProducts.length === 0
-          ? Array(4)
-              .fill(0)
-              .map((_, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-start w-full bg-white border border-gray-200 p-4 animate-pulse"
-                >
-                  <div className="w-full h-[250px] sm:h-[300px] bg-gray-200 mb-3" />
-                  <div className="w-3/4 h-4 bg-gray-300 mb-2" />
-                  <div className="w-1/2 h-4 bg-gray-300" />
-                </div>
-              ))
-          : currentProducts.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleProductClick(item.id)}
-                className="flex flex-col items-start w-full bg-white hover:shadow-lg border border-gray-200 p-2 sm:p-4 cursor-pointer transition-shadow"
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-[250px] sm:h-[300px] object-contain mb-4"
-                />
-                <div className="flex justify-between w-full text-sm font-semibold">
-                  <span className="line-clamp-2 w-[70%]">{item.title}</span>
-                  <span className="ml-auto font-bold">${item.price}</span>
-                </div>
-              </div>
-            ))}
+        {currentProducts.map((item) => (
+          <div
+            key={item._id}
+            onClick={() => handleProductClick(item.originalId)}
+            className="flex flex-col items-start w-full bg-white hover:shadow-lg border border-gray-200 p-2 sm:p-4 cursor-pointer transition-shadow"
+          >
+            <img
+              src={item.images[0]} // Show first image
+              alt={item.name}
+              className="w-full h-[250px] sm:h-[300px] object-contain mb-4"
+            />
+            <div className="flex flex-col w-full text-sm">
+              <span className="line-clamp-2 font-semibold">{item.name}</span>
+              <span className="text-gray-600">{item.color}</span>
+              <span className="font-bold">${item.price}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pagination */}

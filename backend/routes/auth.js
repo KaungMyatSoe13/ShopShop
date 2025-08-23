@@ -7,6 +7,7 @@ const passwordController = require("../controllers/passwordController");
 const userController = require("../controllers/userController");
 const auth = require("../middleware/authMiddleware");
 const productController = require("../controllers/ProductController");
+const adminController = require("../controllers/adminController");
 
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
@@ -50,6 +51,7 @@ router.post("/reset-password", passwordController.resetPassword);
 router.post("/google", authController.googleAuth);
 
 // Product routes - NOW upload is defined
+// Product routes - Place this BEFORE the /products/:id route
 router.post(
   "/upload-images",
   auth,
@@ -58,9 +60,23 @@ router.post(
 );
 
 router.post("/products", auth, productController.addProduct);
+router.get("/products/by-color", productController.getProductsByColor); // Add this line HERE
 router.get("/products", productController.getProducts);
-router.get("/products/:id", productController.getProductById);
+router.get("/products/:id", productController.getProductById); // This must come AFTER /products/by-color
 router.put("/products/:id", auth, productController.updateProduct);
 router.delete("/products/:id", auth, productController.deleteProduct);
+
+router.get("/me", auth, adminController.getMe, (req, res, next) => {
+  console.log("Admin route accessed");
+  next();
+});
+router.get("/admin/me", auth, adminController.getMe, (req, res, next) => {
+  console.log("Admin route accessed");
+  next();
+});
+router.get("/admin/details", auth, adminController.getMe, (req, res, next) => {
+  console.log("Admin route accessed");
+  next();
+});
 
 module.exports = router;

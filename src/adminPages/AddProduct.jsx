@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import ProfileSideBar from "../adminComponents/ProfileSideBar";
 
 function AddProduct() {
   const formRef = useRef(null);
@@ -17,7 +18,6 @@ function AddProduct() {
     description: "",
     mainCategory: "",
     subCategory: "",
-    images: [],
     variants: [],
     price: "",
     targetGender: "male",
@@ -26,12 +26,11 @@ function AddProduct() {
   const [currentVariant, setCurrentVariant] = useState({
     color: "",
     sizes: [],
+    images: [], // Add this line
   });
 
-  const mainCategories = [];
-  const subCategories = ["Leather Jacket", "Hoodie", "Coat"];
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-  const colors = ["Black", "Brown", "White", "Red", "Blue", "Green", "Gray"];
+  const colors = ["Black", "Brown", "White", "Red", " Blue", "Green", "Gray"];
   const genders = ["male", "female", "unisex"];
 
   const uploadImages = async (files) => {
@@ -59,8 +58,8 @@ function AddProduct() {
     const { name, value, files } = e.target;
     if (name === "images" && files) {
       const imageFiles = Array.from(files);
-      setCurrentProduct({
-        ...currentProduct,
+      setCurrentVariant({
+        ...currentVariant,
         images: imageFiles,
       });
     } else if (name === "batchName") {
@@ -68,9 +67,24 @@ function AddProduct() {
         ...product,
         batchName: value,
       });
-    } else {
+    } else if (
+      [
+        "name",
+        "description",
+        "mainCategory",
+        "subCategory",
+        "price",
+        "targetGender",
+      ].includes(name)
+    ) {
+      // Add this condition to handle currentProduct fields
       setCurrentProduct({
         ...currentProduct,
+        [name]: value,
+      });
+    } else {
+      setCurrentVariant({
+        ...currentVariant,
         [name]: value,
       });
     }
@@ -106,8 +120,14 @@ function AddProduct() {
   };
 
   const addVariant = () => {
-    if (!currentVariant.color || currentVariant.sizes.length === 0) {
-      alert("Please select a color and add stock for at least one size");
+    if (
+      !currentVariant.color ||
+      currentVariant.sizes.length === 0 ||
+      currentVariant.images.length === 0
+    ) {
+      alert(
+        "Please select a color, add stock for at least one size, and upload images"
+      );
       return;
     }
     setCurrentProduct({
@@ -117,6 +137,7 @@ function AddProduct() {
     setCurrentVariant({
       color: "",
       sizes: [],
+      images: [], // Reset images too
     });
   };
 
@@ -128,11 +149,7 @@ function AddProduct() {
   };
 
   const addProductToGender = () => {
-    if (
-      !currentProduct.name ||
-      !currentProduct.targetGender ||
-      currentProduct.variants.length === 0
-    ) {
+    if (!currentProduct.targetGender || currentProduct.variants.length === 0) {
       alert("Please fill all required fields and add at least one variant");
       return;
     }
@@ -144,6 +161,7 @@ function AddProduct() {
         [targetGender]: [...product.genders[targetGender], { ...productData }],
       },
     });
+
     setCurrentProduct({
       name: "",
       description: "",
@@ -175,10 +193,20 @@ function AddProduct() {
       for (const [gender, products] of Object.entries(product.genders)) {
         updatedGenders[gender] = [];
         for (const prod of products) {
-          const imageUrls = await uploadImages(prod.images);
+          const updatedVariants = [];
+
+          // Process each variant to upload images
+          for (const variant of prod.variants) {
+            const imageUrls = await uploadImages(variant.images); // Upload images for each variant
+            updatedVariants.push({
+              ...variant,
+              images: imageUrls, // Replace File objects with URLs
+            });
+          }
+
           updatedGenders[gender].push({
             ...prod,
-            images: imageUrls,
+            variants: updatedVariants, // Use updated variants with image URLs
           });
         }
       }
@@ -213,7 +241,6 @@ function AddProduct() {
           description: "",
           mainCategory: "",
           subCategory: "",
-          images: [],
           variants: [],
           price: "",
           targetGender: "male",
@@ -253,37 +280,31 @@ function AddProduct() {
   };
 
   const removeImage = (index) => {
-    const newImages = currentProduct.images.filter((_, i) => i !== index);
-    setCurrentProduct({
-      ...currentProduct,
+    const newImages = currentVariant.images.filter((_, i) => i !== index); // Change from currentProduct to currentVariant
+    setCurrentVariant({
+      // Change from currentProduct to currentVariant
+      ...currentVariant,
       images: newImages,
     });
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 w-full">
       <div className="flex flex-1 justify-center h-full">
-        <div className="flex flex-col sm:flex-row w-[95%] border my-4 bg-white shadow-lg">
+        <div className="flex flex-col sm:flex-row w-[95%] border my-4 bg-white shadow-lg border">
           {/* Sidebar placeholder */}
-          <div className="w-64 bg-gray-800 text-white p-4">
-            <h3 className="text-lg font-semibold mb-4">Admin Panel</h3>
-            <p className="text-sm">Profile Sidebar</p>
-          </div>
+          <ProfileSideBar />
 
           {/* Main content */}
-          <div className="flex-grow p-6 text-gray-700 bg-gray-50">
+          <div className="flex-grow sm:w-1/2 p-6 text-gray-700 bg-gray-50">
             <div className="max-w-7xl mx-auto">
-              <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-                Create Product Batch
-              </h2>
-
               {/* Batch Name - Top Level */}
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              <div className="bg-white p-6  -lg shadow-md mb-6 border">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800 ">
                   Batch Information
                 </h3>
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700">
+                  <label className="block mb-2 font-medium text-gray-700 ">
                     Batch Name *
                   </label>
                   <input
@@ -292,15 +313,15 @@ function AddProduct() {
                     value={product.batchName}
                     onChange={handleChange}
                     placeholder="e.g., Summer Collection 2024"
-                    className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500 focus:border-transparent"
                     required
                   />
                 </div>
               </div>
 
               {/* Current Product Form */}
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">
+              <div className="bg-white p-6  -lg shadow-md mb-6 border">
+                <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 ">
                   Add Product to Batch
                 </h3>
 
@@ -316,7 +337,7 @@ function AddProduct() {
                         name="targetGender"
                         value={currentProduct.targetGender}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                       >
                         {genders.map((gender) => (
                           <option key={gender} value={gender}>
@@ -337,7 +358,7 @@ function AddProduct() {
                         value={currentProduct.name}
                         onChange={handleChange}
                         placeholder="e.g., Premium Leather Jacket"
-                        className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                         required
                       />
                     </div>
@@ -352,7 +373,7 @@ function AddProduct() {
                         value={currentProduct.description}
                         onChange={handleChange}
                         placeholder="Product description..."
-                        className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                         rows={4}
                       />
                     </div>
@@ -369,7 +390,7 @@ function AddProduct() {
                             name="mainCategory"
                             value={currentProduct.mainCategory}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                             placeholder="Enter category"
                             required
                           />
@@ -385,7 +406,7 @@ function AddProduct() {
                             name="subCategory"
                             value={currentProduct.subCategory}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                             placeholder="Enter sub category"
                             required
                           />
@@ -404,9 +425,9 @@ function AddProduct() {
                         value={currentProduct.price}
                         onChange={handleChange}
                         min="0"
-                        step="0.01"
+                        step="10"
                         placeholder="0.00"
-                        className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                         required
                       />
                     </div>
@@ -425,25 +446,27 @@ function AddProduct() {
                         onChange={handleChange}
                         multiple
                         accept="image/*"
-                        className="w-full border border-gray-300 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 py-2 px-4  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                       />
-                      {currentProduct.images.length > 0 && (
+                      {currentVariant.images.length > 0 && ( // Change from currentProduct to currentVariant
                         <div className="mt-3">
                           <p className="text-sm text-gray-600 mb-2">
-                            Selected images ({currentProduct.images.length}):
+                            Selected images ({currentVariant.images.length}): //
+                            Change here too
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            {Array.from(currentProduct.images).map(
+                            {Array.from(currentVariant.images).map(
+                              // Change here too
                               (file, index) => (
                                 <div
                                   key={index}
-                                  className="relative bg-gray-100 p-2 rounded text-sm"
+                                  className="relative bg-gray-100 p-2 text-sm"
                                 >
                                   <span className="text-xs">{file.name}</span>
                                   <button
                                     type="button"
                                     onClick={() => removeImage(index)}
-                                    className="ml-2 text-red-500 hover:text-red-700 font-bold"
+                                    className="ml-2 text-red-500 hover:text-red-700 font-bold hover:cursor-pointer"
                                   >
                                     ×
                                   </button>
@@ -458,15 +481,11 @@ function AddProduct() {
                     {/* Variants Section */}
                     <div className="border-t pt-4">
                       <h4 className="font-semibold text-lg mb-4 text-gray-800">
-                        Product Variants (Color + Size + Stock)
+                        Product Variants
                       </h4>
 
                       {/* Current Variant Builder */}
-                      <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                        <h5 className="font-medium mb-3 text-gray-700">
-                          Add Variant
-                        </h5>
-
+                      <div className="bg-gray-50 p-4  -lg mb-4">
                         {/* Color Selection */}
                         <div className="mb-3">
                           <label className="block mb-2 font-medium text-gray-700">
@@ -480,7 +499,7 @@ function AddProduct() {
                                 color: e.target.value,
                               })
                             }
-                            className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 px-3 py-2  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
                           >
                             <option value="">Select Color</option>
                             {colors.map((color) => (
@@ -520,7 +539,11 @@ function AddProduct() {
                                       e.target.value
                                     )
                                   }
-                                  className="flex-1 border border-gray-300 px-2 py-1 text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="
+      border border-gray-300 px-2 py-1 text-sm   
+      focus:outline-none focus:ring-1 focus:ring- gray-500
+      w-16 sm:w-30 md:flex-1
+    "
                                 />
                               </div>
                             ))}
@@ -530,7 +553,7 @@ function AddProduct() {
                         <button
                           type="button"
                           onClick={addVariant}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors"
+                          className="bg-gray-600 text-white px-4 py-2 text-sm hover:bg-gray-700 transition-colors hover:cursor-pointer"
                         >
                           Add Variant
                         </button>
@@ -545,7 +568,7 @@ function AddProduct() {
                           {currentProduct.variants.map((variant, index) => (
                             <div
                               key={index}
-                              className="border border-gray-200 p-3 mb-2 bg-white rounded"
+                              className="border border-gray-200 p-3 mb-2 bg-white"
                             >
                               <div className="flex justify-between items-start">
                                 <div>
@@ -557,6 +580,9 @@ function AddProduct() {
                                     {variant.sizes
                                       .map((s) => `${s.size}(${s.stock})`)
                                       .join(", ")}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    Images: {variant.images.length} file(s)
                                   </p>
                                 </div>
                                 <button
@@ -580,7 +606,7 @@ function AddProduct() {
                   <button
                     type="button"
                     onClick={addProductToGender}
-                    className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-medium"
+                    className="bg-green-600 text-white px-6 py-3  -md hover:bg-green-700 transition-colors font-medium hover:cursor-pointer"
                   >
                     Add Product to{" "}
                     {currentProduct.targetGender.charAt(0).toUpperCase() +
@@ -596,7 +622,7 @@ function AddProduct() {
                   products.length > 0 && (
                     <div
                       key={gender}
-                      className="bg-white p-6 rounded-lg shadow-md mb-6"
+                      className="bg-white p-6 text-lg shadow-md mb-6 border"
                     >
                       <h3 className="text-xl font-semibold mb-4 text-gray-800 capitalize">
                         {gender} Products ({products.length})
@@ -605,7 +631,7 @@ function AddProduct() {
                         {products.map((prod, index) => (
                           <div
                             key={index}
-                            className="border border-gray-200 p-4 bg-gray-50 rounded-lg"
+                            className="border border-gray-200 p-4 bg-gray-50  -lg"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <h4 className="font-medium text-gray-800">
@@ -616,7 +642,7 @@ function AddProduct() {
                                 onClick={() =>
                                   removeProductFromGender(gender, index)
                                 }
-                                className="text-red-500 hover:text-red-700 text-sm"
+                                className="text-red-500 hover:text-red-700 text-sm hover:cursor-pointer"
                               >
                                 Remove
                               </button>
@@ -632,8 +658,7 @@ function AddProduct() {
                               {prod.variants.map((v) => v.color).join(", ")}
                             </p>
                             <p className="text-sm text-gray-500">
-                              {prod.variants.length} variant(s),{" "}
-                              {prod.images.length} image(s)
+                              {prod.variants.length} variant(s)
                             </p>
                           </div>
                         ))}
@@ -653,14 +678,14 @@ function AddProduct() {
                       (arr) => arr.length === 0
                     )
                   }
-                  className="bg-gray-800 text-white px-8 py-3 rounded-md hover:bg-gray-900 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="bg-gray-800 text-white px-8 py-3  -md hover:bg-gray-900 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed hover:cursor-pointer"
                 >
                   Save Batch
                 </button>
                 <button
                   type="button"
                   onClick={handleDiscard}
-                  className="bg-gray-400 text-white px-8 py-3 rounded-md hover:bg-gray-500 transition-colors font-medium"
+                  className="bg-gray-400 text-white px-8 py-3  -md hover:bg-gray-500 transition-colors font-medium hover:cursor-pointer"
                 >
                   Discard All
                 </button>

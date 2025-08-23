@@ -21,6 +21,9 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api", authRoutes); // Add this line to make /api/products/by-color work
+
+app.use("/api/auth", authRoutes);
 // Backward-compatibility redirects for older emailed links without /api/auth prefix
 app.get("/user/verify/:userId/:uniqueString", (req, res) => {
   const { userId, uniqueString } = req.params;

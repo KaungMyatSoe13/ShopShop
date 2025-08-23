@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-
-// Define the product item schema (to avoid repetition)
 const productItemSchema = new mongoose.Schema(
   {
     name: {
@@ -10,13 +8,14 @@ const productItemSchema = new mongoose.Schema(
     description: String,
     mainCategory: String,
     subCategory: String,
-    images: [String],
+    // images: [String], // Remove this line
     variants: [
       {
         color: {
           type: String,
           required: true,
         },
+        images: [String], // Add images here in each variant
         sizes: [
           {
             size: {
@@ -35,7 +34,7 @@ const productItemSchema = new mongoose.Schema(
     price: Number,
   },
   { _id: true }
-); // Each product gets its own _id
+);
 
 const productSchema = new mongoose.Schema(
   {

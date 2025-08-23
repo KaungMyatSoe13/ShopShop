@@ -53,6 +53,46 @@ exports.getProducts = async (req, res) => {
   }
 };
 
+// @desc   Get all products flattened by color variants
+// @route  GET /api/products/by-color
+// @access Public
+exports.getProductsByColor = async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+
+    const flattenedProducts = [];
+
+    products.forEach((product) => {
+      ["male", "female", "unisex"].forEach((gender) => {
+        product.genders[gender].forEach((item) => {
+          item.variants.forEach((variant) => {
+            flattenedProducts.push({
+              _id: `${item._id}_${variant.color}`,
+              originalId: item._id,
+              batchName: product.batchName,
+              name: item.name,
+              description: item.description,
+              mainCategory: item.mainCategory,
+              subCategory: item.subCategory,
+              price: item.price,
+              gender: gender,
+              color: variant.color,
+              images: variant.images, // Now getting images from variant
+              sizes: variant.sizes,
+              createdAt: product.createdAt,
+            });
+          });
+        });
+      });
+    });
+
+    res.json(flattenedProducts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    console.log("Error fetching products by color:", err);
+  }
+};
+
 // @desc   Get single product by ID
 // @route  GET /api/products/:id
 // @access Public
