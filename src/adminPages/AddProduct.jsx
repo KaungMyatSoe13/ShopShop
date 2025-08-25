@@ -436,56 +436,58 @@ function AddProduct() {
                   {/* Right Column */}
                   <div className="space-y-4">
                     {/* Images */}
-                    <div>
-                      <label className="block mb-2 font-medium text-gray-700">
-                        Product Images
-                      </label>
-                      <input
-                        type="file"
-                        name="images"
-                        onChange={handleChange}
-                        multiple
-                        accept="image/*"
-                        className="w-full border border-gray-300 py-2 px-4  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
-                      />
-                      {currentVariant.images.length > 0 && ( // Change from currentProduct to currentVariant
-                        <div className="mt-3">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Selected images ({currentVariant.images.length}): //
-                            Change here too
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {Array.from(currentVariant.images).map(
-                              // Change here too
-                              (file, index) => (
-                                <div
-                                  key={index}
-                                  className="relative bg-gray-100 p-2 text-sm"
-                                >
-                                  <span className="text-xs">{file.name}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeImage(index)}
-                                    className="ml-2 text-red-500 hover:text-red-700 font-bold hover:cursor-pointer"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
 
                     {/* Variants Section */}
-                    <div className="border-t pt-4">
-                      <h4 className="font-semibold text-lg mb-4 text-gray-800">
+                    <div className="pt-4">
+                      <h4 className="font-semibold text-lg text-gray-800">
                         Product Variants
                       </h4>
 
                       {/* Current Variant Builder */}
                       <div className="bg-gray-50 p-4  -lg mb-4">
+                        <div>
+                          <label className="block mb-2 font-medium text-gray-700">
+                            Images
+                          </label>
+                          <input
+                            type="file"
+                            name="images"
+                            onChange={handleChange}
+                            multiple
+                            accept="image/*"
+                            className="w-full border border-gray-300 py-2 px-4  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
+                          />
+                          {currentVariant.images.length > 0 && ( // Change from currentProduct to currentVariant
+                            <div className="mt-3">
+                              <p className="text-sm text-gray-600 mb-2">
+                                Selected images ({currentVariant.images.length}
+                                ):
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {Array.from(currentVariant.images).map(
+                                  // Change here too
+                                  (file, index) => (
+                                    <div
+                                      key={index}
+                                      className="relative bg-gray-100 p-2 text-sm"
+                                    >
+                                      <span className="text-xs">
+                                        {file.name}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        className="ml-2 text-red-500 hover:text-red-700 font-bold hover:cursor-pointer"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         {/* Color Selection */}
                         <div className="mb-3">
                           <label className="block mb-2 font-medium text-gray-700">

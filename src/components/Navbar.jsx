@@ -16,16 +16,14 @@ function Navbar() {
   const shopCategories = [
     "Men",
     "Women",
-    "Kids",
     "New Arrivals",
-    "Best Sellers",
     "Tees",
+    "T-Shirts",
     "Hoodies",
     "Crewnecks",
     "Outwear",
     "Shorts",
     "Accessories",
-    "Restock Items",
     "All",
   ];
 

@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../index.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import { HiOutlineArrowLongRight } from "react-icons/hi2";
@@ -16,9 +16,19 @@ function ShowCase() {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const res = await fetch("https://fakestoreapi.com/products");
+        const res = await fetch("http://localhost:5000/api/products/by-color");
         const data = await res.json();
-        setAllProducts(data);
+
+        // Filter for new arrivals only (last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const newArrivals = data.filter((product) => {
+          const productDate = new Date(product.createdAt);
+          return productDate >= thirtyDaysAgo;
+        });
+
+        setAllProducts(newArrivals);
       } catch (error) {
         console.error("Failed to fetch products", error);
       }
@@ -33,16 +43,23 @@ function ShowCase() {
       setDebouncedSearchTerm(searchTerm);
     }, 500); // 500ms debounce time
 
-    return () => {
-      clearTimeout(handler);
-    };
+    return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // Filter products using debounced search term (case insensitive)
   const filteredProducts = allProducts.filter(
     (item) =>
-      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      (item.name || item.title)
+        .toLowerCase()
+        .includes(debouncedSearchTerm.toLowerCase()) ||
+      (item.mainCategory || item.category || "")
+        .toLowerCase()
+        .includes(debouncedSearchTerm.toLowerCase()) ||
+      (item.brand || "")
+        .toLowerCase()
+        .includes(debouncedSearchTerm.toLowerCase()) ||
+      (item.color || "")
+        .toLowerCase()
+        .includes(debouncedSearchTerm.toLowerCase())
   );
 
   const scrollRight = () => {
@@ -65,7 +82,7 @@ function ShowCase() {
     <div className="ml-7.5 flex-col flex w-full h-190 sm:h-full sm:flex-row sm:ml-13">
       {/* LEFT SIDE */}
       <div className="sm:w-[40%] flex flex-col sm:mb-0 sm:h-full h-[35%]">
-        <div className="flex flex-row items-center gap-1 bg-[#D9D9D9] px-3 py-1 w-[85%] h-[40px] sm:z-10 sm:w-full h-full">
+        <div className="flex flex-row items-center gap-1 bg-[#D9D9D9] px-3 py-1 w-[85%] h-[40px] sm:z-10 sm:w-full">
           <GrSearch />
           <input
             type="text"
@@ -82,27 +99,32 @@ function ShowCase() {
           Summer
         </span>
         <span className="font-bold font-fairplay font-thin text-sm">2025</span>
-        <div className="mb-5 sm:mb-0 flex sm:flex-row items-center gap-3 mt-5 sm:mt-0 h-98">
+        <div className="mb-5 sm:mb-0 flex flex-col sm:flex-row items-center gap-3 mt-5 sm:mt-0 h-98 relative">
+          {/* Go To Shop button */}
           <NavLink
             to="shop"
-            className="flex justfiy-center items-center h-8 relative bg-[#D9D9D9] sm:mt-68 sm:w-4/5 hover:bg-gray-400 transition-colors duration-300"
+            className="mt-auto flex justify-center items-center h-10 w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
           >
-            <div className="text-black flex items-center font-playfair ml-2 sm:ml-5 sm:text-md py-2 text-sm w-full">
+            <div className="flex items-center font-playfair font-semibold text-black text-sm sm:text-md w-full">
               Go To Shop
-              <HiOutlineArrowLongRight className="sm:ml-auto sm:text-3xl text-xl ml-5 sm:ml-0 mr-2" />
+              <HiOutlineArrowLongRight className="ml-auto sm:text-3xl text-xl" />
             </div>
           </NavLink>
-          <div
-            className="hidden sm:block sm:mt-68 border border-black"
-            onClick={scrollLeft}
-          >
-            <IoMdArrowDropleft className="text-3xl cursor-pointer" />
-          </div>
-          <div
-            className="hidden sm:block sm:mt-68 border border-black"
-            onClick={scrollRight}
-          >
-            <IoMdArrowDropright className="text-3xl cursor-pointer" />
+
+          {/* Arrows */}
+          <div className="flex justify-between w-full sm:w-auto mt-auto gap-2 sm:gap-3">
+            <div
+              onClick={scrollLeft}
+              className="border border-black p-1 cursor-pointer"
+            >
+              <IoMdArrowDropleft className="text-3xl" />
+            </div>
+            <div
+              onClick={scrollRight}
+              className="border border-black p-1 cursor-pointer"
+            >
+              <IoMdArrowDropright className="text-3xl" />
+            </div>
           </div>
         </div>
       </div>
@@ -115,20 +137,20 @@ function ShowCase() {
         >
           {filteredProducts.map((item) => (
             <div
-              key={item.id}
-              onClick={() => handleClick(item.id)}
+              key={item._id || item.originalId}
+              onClick={() => handleClick(item.originalId || item._id)}
               className="flex flex-col items-start flex-shrink-0 w-[30vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer"
             >
               <img
-                src={item.image}
-                alt={item.title}
+                src={item.images?.[0] || item.image}
+                alt={item.name || item.title}
                 className="w-full h-auto sm:h-[90%] object-contain"
               />
               <span className="text-[10px] text-gray-500 sm:text-xs">
-                {item.category}
+                {item.mainCategory || item.category}
               </span>
               <span className="text-[9px] sm:text-sm font-semibold break-words">
-                {item.title}
+                {item.name || item.title}
               </span>
               <span className="text-[12px] sm:text-sm font-bold">
                 ${item.price}

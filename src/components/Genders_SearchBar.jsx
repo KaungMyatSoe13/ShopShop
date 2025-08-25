@@ -18,10 +18,10 @@ function Genders_SearchBar() {
           WOMEN
         </NavLink>
         <NavLink
-          to="/product-category/kids"
+          to="/product-category/new-arrivals"
           className="cursor-pointer hover:text-black transition-colors duration-300"
         >
-          KIDS
+          New Arrivals
         </NavLink>
       </div>
     </div>
