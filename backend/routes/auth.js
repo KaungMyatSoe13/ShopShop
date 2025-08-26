@@ -9,6 +9,8 @@ const auth = require("../middleware/authMiddleware");
 const productController = require("../controllers/ProductController");
 const adminController = require("../controllers/adminController");
 
+const cartController = require("../controllers/cartController");
+
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -59,12 +61,20 @@ router.post(
   productController.uploadImages
 );
 
+// Product routes
 router.post("/products", auth, productController.addProduct);
 router.get("/products/by-color", productController.getProductsByColor); // Add this line HERE
 router.get("/products", productController.getProducts);
 router.get("/products/:id", productController.getProductById); // This must come AFTER /products/by-color
 router.put("/products/:id", auth, productController.updateProduct);
 router.delete("/products/:id", auth, productController.deleteProduct);
+
+// Cart routes
+router.post("/cart/add", auth, cartController.addToCart);
+router.get("/cart", auth, cartController.getCart);
+router.put("/cart/:itemId", auth, cartController.updateCartItem);
+router.delete("/cart/:itemId", auth, cartController.removeFromCart);
+router.delete("/cart", auth, cartController.clearCart);
 
 router.get("/me", auth, adminController.getMe, (req, res, next) => {
   console.log("Admin route accessed");

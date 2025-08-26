@@ -67,7 +67,7 @@ exports.getProductsByColor = async (req, res) => {
         product.genders[gender].forEach((item) => {
           item.variants.forEach((variant) => {
             flattenedProducts.push({
-              _id: `${item._id}_${variant.color}`,
+              _id: `${product._id}_${variant.color}`,
               originalId: item._id,
               batchName: product.batchName,
               name: item.name,

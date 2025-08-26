@@ -30,7 +30,7 @@ function ShowCase() {
 
         setAllProducts(newArrivals);
       } catch (error) {
-        console.error("Failed to fetch products", error);
+        console.error("Failed to fetch products sir", error);
       }
     };
 
@@ -137,8 +137,8 @@ function ShowCase() {
         >
           {filteredProducts.map((item) => (
             <div
-              key={item._id || item.originalId}
-              onClick={() => handleClick(item.originalId || item._id)}
+              key={item._id}
+              onClick={() => handleClick(item._id)}
               className="flex flex-col items-start flex-shrink-0 w-[30vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer"
             >
               <img

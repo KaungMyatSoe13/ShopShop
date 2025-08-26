@@ -8,6 +8,8 @@ const productItemSchema = new mongoose.Schema(
     description: String,
     mainCategory: String,
     subCategory: String,
+    price: Number,
+
     // images: [String], // Remove this line
     variants: [
       {
@@ -31,7 +33,6 @@ const productItemSchema = new mongoose.Schema(
         ],
       },
     ],
-    price: Number,
   },
   { _id: true }
 );

@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
+import { useCart } from "../context/CartContext";
 
 function Collapsible({ isOpen, children }) {
   return (
@@ -27,12 +28,14 @@ function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [size, setSize] = useState("MEDIUM");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState("");
   const [openSection, setOpenSection] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const [isFading, setIsFading] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+
+  const { addToCart } = useCart();
 
   const changeImageWithFade = (newIndex) => {
     setIsFading(true); // start fade out
@@ -303,7 +306,7 @@ function ProductPage() {
                 onChange={(e) =>
                   setQuantity(Math.max(1, Number(e.target.value)))
                 }
-                className="w-20 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-20 px-3 py-2 border  focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
 
@@ -311,10 +314,11 @@ function ProductPage() {
             <button
               className="mt-6 bg-black text-white px-6 py-3 hover:opacity-80 transition w-full font-semibold hover:cursor-pointer"
               onClick={() => {
-                // Add your cart logic here
-                console.log(
-                  `Added to cart: ${product.name}, Size: ${size}, Quantity: ${quantity}`
-                );
+                if (quantity && size) {
+                  addToCart(product._id, parseInt(quantity), size);
+                } else {
+                  alert("Please select a size and quantity.");
+                }
               }}
             >
               Add To Cart

@@ -5,25 +5,11 @@ import { HiPlusSmall } from "react-icons/hi2";
 import { HiMinusSmall } from "react-icons/hi2";
 import { NavLink } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
-const cartItems = [
-  {
-    id: 1,
-    name: "Oversized Hoodie",
-    price: 35000,
-    quantity: 2,
-    image: "/images/model1.png",
-  },
-  {
-    id: 2,
-    name: "Graphic Tee",
-    price: 18000,
-    quantity: 1,
-    image: "/images/model2.png",
-  },
-];
+import { useCart } from "../context/CartContext";
 
 function Cart() {
+  const { cart, updateQuantity, removeFromCart } = useCart();
+  const cartItems = cart;
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -67,11 +53,21 @@ function Cart() {
 
                     {/* Quantity */}
                     <div className="flex flex-row items-center gap-2">
-                      <HiMinusSmall className="hover:cursor-pointer" />
+                      <HiMinusSmall
+                        className="hover:cursor-pointer"
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
+                      />
                       <div className="text-center rounded px-2 min-w-[40px]">
                         {item.quantity}
                       </div>
-                      <HiPlusSmall className="hover:cursor-pointer" />
+                      <HiPlusSmall
+                        className="hover:cursor-pointer"
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
+                      />
                     </div>
 
                     <p className="text-gray-700 font-medium">
