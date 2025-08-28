@@ -13,6 +13,13 @@ function Navbar() {
   const [shopOpen, setShopOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false); // update state so Navbar re-renders
+    window.location.href = "/profile/loginPage"; // optional redirect
+  };
+
   const shopCategories = [
     "Men",
     "Women",

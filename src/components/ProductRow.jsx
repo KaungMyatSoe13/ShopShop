@@ -133,31 +133,11 @@ function ProductRow({
   };
 
   const handleProductClick = (id) => {
+    // Use originalId to navigate to the main product
     navigate(`/product/${id}`);
   };
 
-  if (loading) {
-    return (
-      <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading products...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (products.length === 0) {
-    return (
-      <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-gray-500">
-            No products found for this category.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // In the return statement, make sure we're using the right fields:
   return (
     <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
       {/* Product Count */}
@@ -170,35 +150,34 @@ function ProductRow({
         {currentProducts.map((item) => (
           <div
             key={item._id}
-            onClick={() => handleProductClick(item.originalId)}
+            onClick={() => handleProductClick(item.originalId)} // Use originalId for navigation
             className="flex flex-col items-start w-full bg-white hover:shadow-lg border border-gray-200 p-2 sm:p-4 cursor-pointer transition-shadow group"
           >
             <div className="relative w-full h-[250px] sm:h-[300px] overflow-hidden">
               <img
-                src={item.images[0]}
-                alt={item.name}
+                src={item.images?.[0]} // Use optional chaining for safety
+                alt={item.name || item.itemName}
                 className={`w-full h-full object-contain absolute inset-0 transition-transform duration-700 ease-in-out
-      ${item.images[1] ? "group-hover:opacity-0" : "group-hover:scale-110"} 
-    `}
+          ${
+            item.images?.[1] ? "group-hover:opacity-0" : "group-hover:scale-110"
+          } 
+        `}
               />
 
-              {item.images[1] && (
+              {item.images?.[1] && (
                 <img
                   src={item.images[1]}
-                  alt={item.name}
+                  alt={item.name || item.itemName}
                   className="w-full h-full object-contain absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out transform group-hover:scale-110"
                 />
               )}
             </div>
 
             <div className="flex flex-col w-full text-sm items-center">
-              <span className="line-clamp-2 font-semibold">{item.name}</span>
-              {/* <span className="text-gray-600">{item.color}</span> */}
+              <span className="line-clamp-2 font-semibold">
+                {item.name || item.itemName}
+              </span>
               <span className="font-bold">${item.price}</span>
-              {/* Debug info - remove in production */}
-              {/* <span className="text-xs text-gray-400">
-                {item.gender} | {item.mainCategory}
-              </span> */}
             </div>
           </div>
         ))}

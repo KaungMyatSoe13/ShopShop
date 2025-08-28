@@ -10,6 +10,7 @@ import { useCart } from "../context/CartContext";
 function Cart() {
   const { cart, updateQuantity, removeFromCart } = useCart();
   const cartItems = cart;
+
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
@@ -40,12 +41,16 @@ function Cart() {
               >
                 {/* Product Info (Image + Name) */}
                 <div className="flex items-center gap-4 sm:col-span-1">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-24 h-30 sm:w-40 sm:h-40 object-cover object-top  shrink-0"
-                  />
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-24 h-30 sm:w-40 sm:h-40 object-cover object-top  shrink-0"
+                    />
+                    <div className="text-sm text-gray-500">{item.name}</div>
+                  </div>
 
+                  <div>{item.name}</div>
                   <div className="sm:hidden space-y-2">
                     {/* Show name below image on mobile */}
                     <h4 className="text-md font-medium">{item.name}</h4>

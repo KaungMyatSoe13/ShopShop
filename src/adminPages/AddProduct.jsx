@@ -13,25 +13,27 @@ function AddProduct() {
     },
   });
 
+  // Update these state variables
   const [currentProduct, setCurrentProduct] = useState({
-    name: "",
-    description: "",
     mainCategory: "",
     subCategory: "",
-    variants: [],
     price: "",
+    variants: [],
     targetGender: "male",
   });
 
   const [currentVariant, setCurrentVariant] = useState({
+    name: "",
+    description: "",
     color: "",
     sizes: [],
-    images: [], // Add this line
+    images: [],
   });
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const colors = ["Black", "Brown", "White", "Red", " Blue", "Green", "Gray"];
   const genders = ["male", "female", "unisex"];
+  const mainCategories = ["T-shirt", "Sweater", "Shoe", "Accessory"];
 
   const uploadImages = async (files) => {
     if (!files || files.length === 0) return [];
@@ -56,37 +58,44 @@ function AddProduct() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
+    // Batch name belongs to top-level product
+    if (name === "batchName") {
+      setProduct((prev) => ({
+        ...prev,
+        batchName: value,
+      }));
+      return;
+    }
+
+    // Handle file uploads for currentVariant
     if (name === "images" && files) {
       const imageFiles = Array.from(files);
-      setCurrentVariant({
-        ...currentVariant,
+      setCurrentVariant((prev) => ({
+        ...prev,
         images: imageFiles,
-      });
-    } else if (name === "batchName") {
-      setProduct({
-        ...product,
-        batchName: value,
-      });
-    } else if (
-      [
-        "name",
-        "description",
-        "mainCategory",
-        "subCategory",
-        "price",
-        "targetGender",
-      ].includes(name)
+      }));
+      return;
+    }
+
+    // Fields that belong to currentProduct
+    if (
+      ["mainCategory", "subCategory", "price", "targetGender"].includes(name)
     ) {
-      // Add this condition to handle currentProduct fields
-      setCurrentProduct({
-        ...currentProduct,
+      setCurrentProduct((prev) => ({
+        ...prev,
         [name]: value,
-      });
-    } else {
-      setCurrentVariant({
-        ...currentVariant,
+      }));
+      return;
+    }
+
+    // Fields that belong to currentVariant (name, description, color, etc.)
+    if (["name", "description", "color"].includes(name)) {
+      setCurrentVariant((prev) => ({
+        ...prev,
         [name]: value,
-      });
+      }));
+      return;
     }
   };
 
@@ -121,12 +130,13 @@ function AddProduct() {
 
   const addVariant = () => {
     if (
+      !currentVariant.name ||
       !currentVariant.color ||
       currentVariant.sizes.length === 0 ||
       currentVariant.images.length === 0
     ) {
       alert(
-        "Please select a color, add stock for at least one size, and upload images"
+        "Please fill in product name, select a color, add stock for at least one size, and upload images"
       );
       return;
     }
@@ -134,10 +144,13 @@ function AddProduct() {
       ...currentProduct,
       variants: [...currentProduct.variants, { ...currentVariant }],
     });
+    // Keep name and description for next variant
     setCurrentVariant({
+      name: currentVariant.name,
+      description: currentVariant.description,
       color: "",
       sizes: [],
-      images: [], // Reset images too
+      images: [],
     });
   };
 
@@ -163,8 +176,6 @@ function AddProduct() {
     });
 
     setCurrentProduct({
-      name: "",
-      description: "",
       mainCategory: "",
       subCategory: "",
       images: [],
@@ -237,8 +248,6 @@ function AddProduct() {
           },
         });
         setCurrentProduct({
-          name: "",
-          description: "",
           mainCategory: "",
           subCategory: "",
           variants: [],
@@ -264,8 +273,6 @@ function AddProduct() {
       },
     });
     setCurrentProduct({
-      name: "",
-      description: "",
       mainCategory: "",
       subCategory: "",
       images: [],
@@ -274,6 +281,8 @@ function AddProduct() {
       targetGender: "male",
     });
     setCurrentVariant({
+      name: "",
+      description: "",
       color: "",
       sizes: [],
     });
@@ -355,7 +364,7 @@ function AddProduct() {
                       <input
                         type="text"
                         name="name"
-                        value={currentProduct.name}
+                        value={currentVariant.name}
                         onChange={handleChange}
                         placeholder="e.g., Premium Leather Jacket"
                         className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
@@ -370,7 +379,7 @@ function AddProduct() {
                       </label>
                       <textarea
                         name="description"
-                        value={currentProduct.description}
+                        value={currentVariant.description}
                         onChange={handleChange}
                         placeholder="Product description..."
                         className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
@@ -384,17 +393,20 @@ function AddProduct() {
                         <label className="block mb-2 font-medium text-gray-700">
                           Main Category *
                         </label>
-                        <div>
-                          <input
-                            type="text"
-                            name="mainCategory"
-                            value={currentProduct.mainCategory}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 px-4 py-3  -md focus:outline-none focus:ring-2 focus:ring- gray-500"
-                            placeholder="Enter category"
-                            required
-                          />
-                        </div>
+                        <select
+                          name="mainCategory"
+                          value={currentProduct.mainCategory}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                          required
+                        >
+                          <option value="">Select Main Category</option>
+                          {mainCategories.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block mb-2 font-medium text-gray-700">
@@ -479,7 +491,7 @@ function AddProduct() {
                                         onClick={() => removeImage(index)}
                                         className="ml-2 text-red-500 hover:text-red-700 font-bold hover:cursor-pointer"
                                       >
-                                        ×
+                                        Ã—
                                       </button>
                                     </div>
                                   )
@@ -637,7 +649,9 @@ function AddProduct() {
                           >
                             <div className="flex justify-between items-start mb-2">
                               <h4 className="font-medium text-gray-800">
-                                {prod.name}
+                                {prod.variants && prod.variants.length > 0
+                                  ? prod.variants[0].name
+                                  : "Unnamed Product"}
                               </h4>
                               <button
                                 type="button"
@@ -653,7 +667,7 @@ function AddProduct() {
                               ${prod.price}
                             </p>
                             <p className="text-sm text-gray-600 mb-1">
-                              {prod.mainCategory} → {prod.subCategory}
+                              {prod.mainCategory} â†’ {prod.subCategory}
                             </p>
                             <p className="text-sm text-gray-600">
                               Colors:{" "}

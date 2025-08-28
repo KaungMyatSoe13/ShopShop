@@ -1,12 +1,12 @@
 const User = require("../models/User");
-const product = require("../models/Product");
+const Product = require("../models/Product");
 
 exports.addToCart = async (req, res) => {
   try {
-    const { productId, quantity = 1, size } = req.body;
+    const { productId, quantity = 1, size } = req.body; //productID is actually variantID with color
 
-    // Extract the actual ObjectId from productId (remove color variant)
-    const [actualProductId, color] = productId.includes("_")
+    // Extract the actual variant ID and color from productId
+    const [variantId, color] = productId.includes("_")
       ? productId.split("_")
       : [productId, null];
 
@@ -18,10 +18,42 @@ exports.addToCart = async (req, res) => {
       user.cart = [];
     }
 
+    // Find the product and variant by searching through all products
+    let foundProduct = null;
+    let foundItem = null;
+    let foundVariant = null;
+
+    const products = await Product.find();
+
+    for (const product of products) {
+      let found = false;
+      for (const genderKey of ["male", "female", "unisex"]) {
+        const items = product.genders[genderKey];
+        for (const item of items) {
+          for (const variant of item.variants) {
+            if (variant._id.toString() === variantId) {
+              foundProduct = product;
+              foundItem = item;
+              foundVariant = variant;
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+
+    if (!foundVariant || !foundItem) {
+      return res.status(404).json({ message: "Product variant not found" });
+    }
+
     const existingItem = user.cart.find(
       (item) =>
-        item.productId &&
-        item.productId.toString() === actualProductId &&
+        item.variantId &&
+        item.variantId.toString() === variantId &&
         item.size === size
     );
 
@@ -29,14 +61,15 @@ exports.addToCart = async (req, res) => {
       existingItem.quantity += parseInt(quantity) || 1;
     } else {
       user.cart.push({
-        productId: actualProductId,
+        productId: foundItem._id, // Store the productItem ID
+        variantId: variantId, // Store the variant ID
         quantity: parseInt(quantity) || 1,
         size,
-        color, // Add this
-        image: product.variants?.[0]?.images?.[0] || "", // first image
-        price: product.price || "",
-        subCategory: product.subCategory || "",
-        name: product.name || "",
+        color: foundVariant.color,
+        image: foundVariant.images?.[0] || "", // Image from variant
+        price: foundItem.price || 0, // Price from productItem
+        subCategory: foundItem.subCategory || "", // subCategory from productItem
+        name: foundItem.name || "", // Name from productItem
       });
     }
 

@@ -62,6 +62,7 @@ function ProductPage() {
         );
         const allProducts = await allProductsRes.json();
 
+        // Find product by originalId or _id
         const foundProduct = allProducts.find(
           (p) => p.originalId === id || p._id === id
         );
@@ -314,8 +315,23 @@ function ProductPage() {
             <button
               className="mt-6 bg-black text-white px-6 py-3 hover:opacity-80 transition w-full font-semibold hover:cursor-pointer"
               onClick={() => {
+                console.log("Product ID:", product._id);
+                console.log("Quantity:", quantity);
+                console.log("Size:", size);
+                console.log("Images:", product.images);
+                console.log("Color:", product.color);
+                console.log("Price:", product.price);
+                console.log("SubCategory:", product.subCategory);
                 if (quantity && size) {
-                  addToCart(product._id, parseInt(quantity), size);
+                  addToCart(
+                    product._id,
+                    parseInt(quantity),
+                    size,
+                    product.images?.[0] || "", // Use first image from array
+                    product.color,
+                    product.price,
+                    product.subCategory
+                  );
                 } else {
                   alert("Please select a size and quantity.");
                 }

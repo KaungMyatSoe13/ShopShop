@@ -15,16 +15,17 @@ const UserSchema = new mongoose.Schema({
   }, // Track auth method
   type: { type: String, enum: ["user", "admin"], default: "user" },
   // In User.js
+  // In User.js schema, update the cart array:
   cart: [
     {
       productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      variantId: { type: String }, // Add this line
       quantity: { type: Number, default: 0 },
       size: { type: String },
-      color: { type: String }, // Add this line
-
-      image: { type: String }, // Add this line
-      price: { type: Number }, // Add this line
-      subCategory: { type: String }, // Add this line
+      color: { type: String },
+      image: { type: String },
+      price: { type: Number },
+      subCategory: { type: String },
       addedAt: { type: Date, default: Date.now },
     },
   ],

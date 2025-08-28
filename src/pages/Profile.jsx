@@ -15,6 +15,7 @@ function Profile() {
   const handleCardClick = (item) => {
     if (item.name === "Logout") {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       navigate("/");
     } else {
       navigate(`/profile/${item.path}`);

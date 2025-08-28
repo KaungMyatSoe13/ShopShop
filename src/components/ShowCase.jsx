@@ -48,9 +48,6 @@ function ShowCase() {
 
   const filteredProducts = allProducts.filter(
     (item) =>
-      (item.name || item.title)
-        .toLowerCase()
-        .includes(debouncedSearchTerm.toLowerCase()) ||
       (item.mainCategory || item.category || "")
         .toLowerCase()
         .includes(debouncedSearchTerm.toLowerCase()) ||

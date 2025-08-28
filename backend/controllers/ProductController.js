@@ -28,14 +28,46 @@ exports.uploadImages = async (req, res) => {
 // @desc   Add a new product
 // @route  POST /api/products
 // @access Admin
+// @desc   Add a new product
+// @route  POST /api/products
+// @access Admin
 exports.addProduct = async (req, res) => {
   try {
-    const productData = { ...req.body };
+    const { batchName, genders } = req.body;
+    const createdProducts = [];
 
-    const product = new Product(productData);
-    await product.save();
+    // Process each gender category
+    for (const [gender, products] of Object.entries(genders)) {
+      if (products && products.length > 0) {
+        for (const productItem of products) {
+          // Create a separate product document for each item
+          const productData = {
+            batchName,
+            mainCategory: productItem.mainCategory,
+            subCategory: productItem.subCategory,
+            gender: gender,
+            itemName: productItem.variants[0]?.name || "Unnamed Product", // Get name from first variant
+            description: productItem.variants[0]?.description || "",
+            price: productItem.price,
+            variants: productItem.variants.map((variant) => ({
+              color: variant.color,
+              images: variant.images,
+              sizes: variant.sizes,
+            })),
+          };
 
-    res.status(201).json({ message: "Product created successfully", product });
+          const product = new Product(productData);
+          const savedProduct = await product.save();
+          createdProducts.push(savedProduct);
+        }
+      }
+    }
+
+    res.status(201).json({
+      message: "Products created successfully",
+      products: createdProducts,
+      count: createdProducts.length,
+    });
   } catch (err) {
     console.error("Error:", err);
     res.status(500).json({ message: err.message });
@@ -56,6 +88,9 @@ exports.getProducts = async (req, res) => {
 // @desc   Get all products flattened by color variants
 // @route  GET /api/products/by-color
 // @access Public
+// @desc   Get all products flattened by color variants
+// @route  GET /api/products/by-color
+// @access Public
 exports.getProductsByColor = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -63,25 +98,22 @@ exports.getProductsByColor = async (req, res) => {
     const flattenedProducts = [];
 
     products.forEach((product) => {
-      ["male", "female", "unisex"].forEach((gender) => {
-        product.genders[gender].forEach((item) => {
-          item.variants.forEach((variant) => {
-            flattenedProducts.push({
-              _id: `${product._id}_${variant.color}`,
-              originalId: item._id,
-              batchName: product.batchName,
-              name: item.name,
-              description: item.description,
-              mainCategory: item.mainCategory,
-              subCategory: item.subCategory,
-              price: item.price,
-              gender: gender,
-              color: variant.color,
-              images: variant.images, // Now getting images from variant
-              sizes: variant.sizes,
-              createdAt: product.createdAt,
-            });
-          });
+      product.variants.forEach((variant) => {
+        flattenedProducts.push({
+          _id: `${product._id}_${variant.color}`,
+          originalId: product._id,
+          batchName: product.batchName,
+          name: product.itemName,
+          itemName: product.itemName,
+          description: product.description,
+          mainCategory: product.mainCategory,
+          subCategory: product.subCategory,
+          price: product.price,
+          gender: product.gender,
+          color: variant.color,
+          images: variant.images,
+          sizes: variant.sizes,
+          createdAt: product.createdAt,
         });
       });
     });

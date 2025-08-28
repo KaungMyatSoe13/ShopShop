@@ -70,10 +70,10 @@ export const CartProvider = ({ children }) => {
     productId,
     quantity,
     size,
-    image,
-    color,
-    price,
-    subCategory
+    image = "",
+    color = "",
+    price = 0,
+    subCategory = ""
   ) => {
     if (isLoggedIn) {
       try {
@@ -87,10 +87,6 @@ export const CartProvider = ({ children }) => {
             productId,
             quantity,
             size,
-            image,
-            color,
-            price,
-            subCategory,
           }),
         });
 
@@ -117,7 +113,6 @@ export const CartProvider = ({ children }) => {
             : item
         );
       } else {
-        // include new properties for guest cart
         newCart = [
           ...cart,
           {
@@ -135,6 +130,7 @@ export const CartProvider = ({ children }) => {
 
       setCart(newCart);
       saveCartToStorage(newCart);
+      alert("Item added to cart");
     }
   };
 
