@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
+import { useCart } from "../context/CartContext"; // Adjust path as needed
 
 function LoginForm() {
   const [isSignup, setIsSignup] = useState(true);
@@ -87,6 +88,7 @@ function LoginForm() {
         localStorage.setItem("token", data.token);
         alert(data.message || "Google authentication successful!");
         navigate("/");
+        window.dispatchEvent(new CustomEvent("authStateChanged"));
       } else {
         console.error("Authentication failed:", data);
         alert("Google authentication failed: " + data.message);
@@ -138,6 +140,8 @@ function LoginForm() {
       if (response.ok) {
         alert("Sign up successful! You can now sign in.");
         setIsSignup(true); // Switch to sign in form
+        // After successful login
+
         setSignupName("");
         setSignupEmail("");
         setSignupPassword("");
@@ -172,6 +176,7 @@ function LoginForm() {
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        window.dispatchEvent(new CustomEvent("authStateChanged"));
         console.log(data.user.type);
         if (data.user.type === "admin") {
           navigate("/admin/dashboard");

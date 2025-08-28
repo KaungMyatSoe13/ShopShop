@@ -16,7 +16,7 @@ function ShowCase() {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products/by-color");
+        const res = await fetch("http://localhost:5000/api/auth/products");
         const data = await res.json();
 
         // Filter for new arrivals only (last 30 days)
@@ -46,17 +46,10 @@ function ShowCase() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  const filteredProducts = allProducts.filter(
-    (item) =>
-      (item.mainCategory || item.category || "")
-        .toLowerCase()
-        .includes(debouncedSearchTerm.toLowerCase()) ||
-      (item.brand || "")
-        .toLowerCase()
-        .includes(debouncedSearchTerm.toLowerCase()) ||
-      (item.color || "")
-        .toLowerCase()
-        .includes(debouncedSearchTerm.toLowerCase())
+  const filteredProducts = allProducts.filter((item) =>
+    (item.itemName || item.mainCategory || "")
+      .toLowerCase()
+      .includes(debouncedSearchTerm.toLowerCase())
   );
 
   const scrollRight = () => {
@@ -71,8 +64,10 @@ function ShowCase() {
     }
   };
 
-  const handleClick = (id) => {
-    navigate(`/product/${id}`);
+  const handleClick = (product) => {
+    // Use originalId if it exists (from by-color endpoint), otherwise use _id
+    const productId = product.originalId || product._id;
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -135,22 +130,20 @@ function ShowCase() {
           {filteredProducts.map((item) => (
             <div
               key={item._id}
-              onClick={() => handleClick(item._id)}
+              onClick={() => handleClick(item)}
               className="flex flex-col items-start flex-shrink-0 w-[30vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer"
             >
               <img
-                src={item.images?.[0] || item.image}
-                alt={item.name || item.title}
+                src={item.variants?.[0]?.images?.[0] || item.image}
+                alt={item.name || item.subCategory}
                 className="w-full h-auto sm:h-[90%] object-contain"
               />
               <span className="text-[10px] text-gray-500 sm:text-xs">
-                {item.mainCategory || item.category}
+                {item.itemName || item.subCategory}
               </span>
-              <span className="text-[9px] sm:text-sm font-semibold break-words">
-                {item.name || item.title}
-              </span>
+
               <span className="text-[12px] sm:text-sm font-bold">
-                ${item.price}
+                {item.price}MMK
               </span>
             </div>
           ))}

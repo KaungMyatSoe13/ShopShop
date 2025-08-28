@@ -6,19 +6,14 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
 import "../index.css";
+import { useCart } from "../context/CartContext"; // Adjust path as needed
 
 function Navbar() {
   const [visible, setVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false); // update state so Navbar re-renders
-    window.location.href = "/profile/loginPage"; // optional redirect
-  };
+  const { cartCount } = useCart();
 
   const shopCategories = [
     "Men",
@@ -214,9 +209,11 @@ function Navbar() {
                 scrolled ? "h-5 w-5" : "h-6 w-6"
               }`}
             />
-            <p className="absolute -bottom-1 -left-1 w-4 text-center leading-4 bg-black text-white rounded-full text-[8px]">
-              10
-            </p>
+            {cartCount > 0 && (
+              <p className="absolute -bottom-1 -left-1 w-4 text-center leading-4 bg-black text-white rounded-full text-[8px]">
+                {cartCount}
+              </p>
+            )}
           </NavLink>
 
           {isLoggedIn ? (

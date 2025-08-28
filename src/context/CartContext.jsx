@@ -18,15 +18,52 @@ export const CartProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const checkAuthState = () => {
+      const token = localStorage.getItem("token");
+      const newLoginState = !!token;
 
-    if (token) {
-      fetchCartFromDB();
-    } else {
-      loadCartFromStorage();
-    }
-  }, []);
+      if (newLoginState !== isLoggedIn) {
+        setIsLoggedIn(newLoginState);
+        if (newLoginState) {
+          // User logged in - fetch their cart
+          fetchCartFromDB();
+        } else {
+          // User logged out - clear cart state and load guest cart
+          setCart([]);
+          loadCartFromStorage();
+        }
+      } else if (newLoginState && cart.length === 0) {
+        // Already logged in but cart is empty, fetch from DB
+        fetchCartFromDB();
+      } else if (!newLoginState && cart.length === 0) {
+        // Not logged in and cart empty, load guest cart
+        loadCartFromStorage();
+      }
+    };
+
+    // Check auth state on mount
+    checkAuthState();
+
+    // Listen for localStorage changes (when user logs in/out in same tab)
+    const handleStorageChange = (e) => {
+      if (e.key === "token") {
+        checkAuthState();
+      }
+    };
+
+    // Listen for custom events (for same-tab login/logout)
+    const handleAuthChange = () => {
+      checkAuthState();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authStateChanged", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authStateChanged", handleAuthChange);
+    };
+  }, [isLoggedIn]); // Keep this dependency
 
   const loadCartFromStorage = () => {
     const savedCart = localStorage.getItem("guestCart");

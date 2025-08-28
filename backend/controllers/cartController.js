@@ -1,80 +1,79 @@
-const User = require("../models/User");
+const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 
 exports.addToCart = async (req, res) => {
   try {
-    const { productId, quantity = 1, size } = req.body; //productID is actually variantID with color
+    const { productId, quantity = 1, size } = req.body;
+    const userId = req.userId;
 
-    // Extract the actual variant ID and color from productId
-    const [variantId, color] = productId.includes("_")
-      ? productId.split("_")
-      : [productId, null];
+    // Find the product by ID (using the new Product schema)
+    const product = await Product.findById(productId);
 
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Initialize cart if it doesn't exist
-    if (!user.cart) {
-      user.cart = [];
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // Find the product and variant by searching through all products
-    let foundProduct = null;
-    let foundItem = null;
+    // For the new Product schema, we need to find the right variant and size
+    // Since your current implementation sends the main product ID, we'll work with that
+
+    // Check if the requested size exists in any variant
     let foundVariant = null;
+    let foundSize = null;
 
-    const products = await Product.find();
-
-    for (const product of products) {
-      let found = false;
-      for (const genderKey of ["male", "female", "unisex"]) {
-        const items = product.genders[genderKey];
-        for (const item of items) {
-          for (const variant of item.variants) {
-            if (variant._id.toString() === variantId) {
-              foundProduct = product;
-              foundItem = item;
-              foundVariant = variant;
-              found = true;
-              break;
-            }
-          }
-          if (found) break;
-        }
-        if (found) break;
+    for (const variant of product.variants) {
+      const sizeData = variant.sizes.find((s) => s.size === size);
+      if (sizeData && sizeData.stock >= quantity) {
+        foundVariant = variant;
+        foundSize = sizeData;
+        break;
       }
-      if (found) break;
     }
 
-    if (!foundVariant || !foundItem) {
-      return res.status(404).json({ message: "Product variant not found" });
-    }
-
-    const existingItem = user.cart.find(
-      (item) =>
-        item.variantId &&
-        item.variantId.toString() === variantId &&
-        item.size === size
-    );
-
-    if (existingItem) {
-      existingItem.quantity += parseInt(quantity) || 1;
-    } else {
-      user.cart.push({
-        productId: foundItem._id, // Store the productItem ID
-        variantId: variantId, // Store the variant ID
-        quantity: parseInt(quantity) || 1,
-        size,
-        color: foundVariant.color,
-        image: foundVariant.images?.[0] || "", // Image from variant
-        price: foundItem.price || 0, // Price from productItem
-        subCategory: foundItem.subCategory || "", // subCategory from productItem
-        name: foundItem.name || "", // Name from productItem
+    if (!foundVariant || !foundSize) {
+      return res.status(400).json({
+        message: "Size not available or insufficient stock",
       });
     }
 
-    await user.save();
-    res.json({ message: "Item added to cart", cart: user.cart });
+    // Create a unique identifier for this specific variant + size combination
+    const variantId = foundVariant._id || foundVariant.color; // Use variant ID or color as fallback
+
+    // Check if item already exists in cart
+    const existingCartItem = await Cart.findOne({
+      userId,
+      productId: product._id,
+      variantId: variantId,
+      size,
+    });
+
+    if (existingCartItem) {
+      // Update quantity
+      existingCartItem.quantity += parseInt(quantity);
+      await existingCartItem.save();
+    } else {
+      // Create new cart item
+      const newCartItem = new Cart({
+        userId,
+        productId: product._id,
+        variantId: variantId,
+        quantity: parseInt(quantity),
+        size,
+        color: foundVariant.color,
+        image: foundVariant.images?.[0] || "",
+        price: product.price, // Use product price
+        itemName: product.itemName,
+        categoryName: product.mainCategory,
+      });
+
+      await newCartItem.save();
+    }
+
+    // Return updated cart
+    const updatedCart = await Cart.find({ userId }).sort({ createdAt: -1 });
+    res.json({
+      message: "Item added to cart successfully",
+      cart: updatedCart,
+    });
   } catch (err) {
     console.error("Cart error:", err);
     res.status(500).json({ message: err.message });
@@ -83,15 +82,13 @@ exports.addToCart = async (req, res) => {
 
 exports.getCart = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).populate("cart.productId");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const userId = req.userId;
 
-    // Ensure cart exists
-    if (!user.cart) {
-      user.cart = [];
-    }
+    const cartItems = await Cart.find({ userId })
+      .populate("productId")
+      .sort({ createdAt: -1 });
 
-    res.json({ cart: user.cart });
+    res.json({ cart: cartItems });
   } catch (err) {
     console.error("Get cart error:", err);
     res.status(500).json({ message: err.message });
@@ -101,17 +98,32 @@ exports.getCart = async (req, res) => {
 exports.updateCartItem = async (req, res) => {
   try {
     const { quantity } = req.body;
-    const user = await User.findById(req.userId);
+    const userId = req.userId;
+    const cartItemId = req.params.itemId;
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const cartItem = await Cart.findOne({ _id: cartItemId, userId });
 
-    const cartItem = user.cart.id(req.params.itemId);
-    if (!cartItem) return res.status(404).json({ message: "Item not found" });
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
 
-    cartItem.quantity = parseInt(quantity) || 1;
-    await user.save();
+    if (quantity <= 0) {
+      await Cart.findByIdAndDelete(cartItemId);
+      const updatedCart = await Cart.find({ userId }).sort({ createdAt: -1 });
+      return res.json({
+        message: "Item removed from cart",
+        cart: updatedCart,
+      });
+    }
 
-    res.json({ message: "Cart updated", cart: user.cart });
+    cartItem.quantity = parseInt(quantity);
+    await cartItem.save();
+
+    const updatedCart = await Cart.find({ userId }).sort({ createdAt: -1 });
+    res.json({
+      message: "Cart updated",
+      cart: updatedCart,
+    });
   } catch (err) {
     console.error("Update cart error:", err);
     res.status(500).json({ message: err.message });
@@ -120,13 +132,23 @@ exports.updateCartItem = async (req, res) => {
 
 exports.removeFromCart = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const userId = req.userId;
+    const cartItemId = req.params.itemId;
 
-    user.cart.pull(req.params.itemId);
-    await user.save();
+    const deletedItem = await Cart.findOneAndDelete({
+      _id: cartItemId,
+      userId,
+    });
 
-    res.json({ message: "Item removed", cart: user.cart });
+    if (!deletedItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    const updatedCart = await Cart.find({ userId }).sort({ createdAt: -1 });
+    res.json({
+      message: "Item removed from cart",
+      cart: updatedCart,
+    });
   } catch (err) {
     console.error("Remove cart error:", err);
     res.status(500).json({ message: err.message });
@@ -135,13 +157,11 @@ exports.removeFromCart = async (req, res) => {
 
 exports.clearCart = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const userId = req.userId;
 
-    user.cart = [];
-    await user.save();
+    await Cart.deleteMany({ userId });
 
-    res.json({ message: "Cart cleared" });
+    res.json({ message: "Cart cleared successfully" });
   } catch (err) {
     console.error("Clear cart error:", err);
     res.status(500).json({ message: err.message });

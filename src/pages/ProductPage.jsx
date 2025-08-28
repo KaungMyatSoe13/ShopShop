@@ -27,8 +27,9 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [size, setSize] = useState("MEDIUM");
-  const [quantity, setQuantity] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [size, setSize] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const [openSection, setOpenSection] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
@@ -56,22 +57,26 @@ function ProductPage() {
       setError(null);
 
       try {
-        // Fetch all products and find by originalId or _id
-        const allProductsRes = await fetch(
-          `http://localhost:5000/api/products/by-color`
+        const response = await fetch(
+          `http://localhost:5000/api/products/${id}`
         );
-        const allProducts = await allProductsRes.json();
-
-        // Find product by originalId or _id
-        const foundProduct = allProducts.find(
-          (p) => p.originalId === id || p._id === id
-        );
-
-        if (foundProduct) {
-          setProduct(foundProduct);
-          setSelectedImageIndex(0);
-        } else {
+        if (!response.ok) {
           throw new Error("Product not found");
+        }
+        const productData = await response.json();
+
+        setProduct(productData);
+        // Set first variant as default if available
+        if (productData.variants && productData.variants.length > 0) {
+          setSelectedVariant(productData.variants[0]);
+          setSelectedImageIndex(0);
+          // Set first available size as default
+          if (
+            productData.variants[0].sizes &&
+            productData.variants[0].sizes.length > 0
+          ) {
+            setSize(productData.variants[0].sizes[0].size);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch product", error);
@@ -145,16 +150,10 @@ function ProductPage() {
 
   // Get available sizes dynamically or use default
   const getAvailableSizes = () => {
-    if (product?.sizes && product.sizes.length > 0) {
-      // Handle if sizes are objects with size property
-      return product.sizes.map((sizeItem) => {
-        if (typeof sizeItem === "object" && sizeItem.size) {
-          return sizeItem.size;
-        }
-        return sizeItem;
-      });
+    if (selectedVariant?.sizes && selectedVariant.sizes.length > 0) {
+      return selectedVariant.sizes.map((sizeItem) => sizeItem.size);
     }
-    return ["MEDIUM", "LARGE", "XLARGE"];
+    return [];
   };
 
   // Loading state
@@ -198,8 +197,7 @@ function ProductPage() {
       </div>
     );
   }
-
-  const productImages = product.images || [product.image];
+  const productImages = selectedVariant?.images || [];
   const selectedImage = productImages[selectedImageIndex] || productImages[0];
   const availableSizes = getAvailableSizes();
 
@@ -273,9 +271,36 @@ function ProductPage() {
             )}
 
             <p className="text-2xl font-semibold text-gray-900">
-              ${product.price}
+              {product.price}MMK
             </p>
-
+            {/* Variant/Color Selection */}
+            {product?.variants && product.variants.length > 1 && (
+              <div>
+                <h3 className="font-semibold text-sm mb-2">Color</h3>
+                <div className="flex gap-2 flex-wrap">
+                  {product.variants.map((variant, index) => (
+                    <button
+                      key={`variant-${index}`}
+                      onClick={() => {
+                        setSelectedVariant(variant);
+                        setSelectedImageIndex(0);
+                        // Reset size when changing variant
+                        if (variant.sizes && variant.sizes.length > 0) {
+                          setSize(variant.sizes[0].size);
+                        }
+                      }}
+                      className={`px-4 py-2 border transition hover:cursor-pointer ${
+                        selectedVariant === variant
+                          ? "bg-black text-white"
+                          : "bg-white text-black hover:bg-gray-300"
+                      }`}
+                    >
+                      {variant.color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Size */}
             <div>
               <h3 className="font-semibold text-sm mb-2">Size</h3>
@@ -315,26 +340,20 @@ function ProductPage() {
             <button
               className="mt-6 bg-black text-white px-6 py-3 hover:opacity-80 transition w-full font-semibold hover:cursor-pointer"
               onClick={() => {
-                console.log("Product ID:", product._id);
-                console.log("Quantity:", quantity);
-                console.log("Size:", size);
-                console.log("Images:", product.images);
-                console.log("Color:", product.color);
-                console.log("Price:", product.price);
-                console.log("SubCategory:", product.subCategory);
-                if (quantity && size) {
-                  addToCart(
-                    product._id,
-                    parseInt(quantity),
-                    size,
-                    product.images?.[0] || "", // Use first image from array
-                    product.color,
-                    product.price,
-                    product.subCategory
-                  );
-                } else {
+                if (!quantity || !size || !selectedVariant) {
                   alert("Please select a size and quantity.");
+                  return;
                 }
+
+                addToCart(
+                  product._id,
+                  parseInt(quantity),
+                  size,
+                  selectedVariant.images?.[0] || "",
+                  selectedVariant.color,
+                  product.price,
+                  product.subCategory
+                );
               }}
             >
               Add To Cart
