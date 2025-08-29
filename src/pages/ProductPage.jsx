@@ -352,8 +352,19 @@ function ProductPage() {
                   selectedVariant.images?.[0] || "",
                   selectedVariant.color,
                   product.price,
-                  product.subCategory
+                  product.subCategory,
+                  product.itemName
                 );
+                console.log("Added to cart:", {
+                  productId: product._id,
+                  quantity: parseInt(quantity),
+                  size,
+                  image: selectedVariant.images?.[0] || "",
+                  color: selectedVariant.color,
+                  price: product.price,
+                  subCategory: product.subCategory,
+                  itemName: product.itemName,
+                });
               }}
             >
               Add To Cart

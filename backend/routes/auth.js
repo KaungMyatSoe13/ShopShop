@@ -8,9 +8,8 @@ const userController = require("../controllers/userController");
 const auth = require("../middleware/authMiddleware");
 const productController = require("../controllers/ProductController");
 const adminController = require("../controllers/adminController");
-
 const cartController = require("../controllers/cartController");
-
+const orderController = require("../controllers/orderController");
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -29,6 +28,7 @@ router.post("/login", authController.login);
 
 // User management routes (protected)
 router.get("/me", auth, userController.getMe);
+router.post("/save-address", auth, userController.saveUserAddress);
 router.put("/profile", auth, userController.updateProfile);
 router.put(
   "/change-password",
@@ -88,5 +88,10 @@ router.get("/admin/details", auth, adminController.getMe, (req, res, next) => {
   console.log("Admin route accessed");
   next();
 });
+
+// Order routes
+router.post("/orders", auth, orderController.createOrder);
+router.get("/orders", auth, orderController.getUserOrders);
+router.get("/orders/:id", auth, orderController.getOrderById);
 
 module.exports = router;

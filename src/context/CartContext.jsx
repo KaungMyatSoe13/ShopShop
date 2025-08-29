@@ -110,7 +110,8 @@ export const CartProvider = ({ children }) => {
     image = "",
     color = "",
     price = 0,
-    subCategory = ""
+    subCategory = "",
+    itemName = "" // ✅ add this
   ) => {
     if (isLoggedIn) {
       try {
@@ -146,7 +147,11 @@ export const CartProvider = ({ children }) => {
       if (existingItem) {
         newCart = cart.map((item) =>
           item.productId === productId && item.size === size
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+                itemName: itemName,
+              } // ✅ ensure itemName is preserved
             : item
         );
       } else {
@@ -161,6 +166,7 @@ export const CartProvider = ({ children }) => {
             color,
             price,
             subCategory,
+            itemName, // ✅ add this
           },
         ];
       }
@@ -168,6 +174,7 @@ export const CartProvider = ({ children }) => {
       setCart(newCart);
       saveCartToStorage(newCart);
       alert("Item added to cart");
+      console.log(newCart);
     }
   };
 

@@ -16,6 +16,58 @@ exports.getMe = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+// Add this method to your userController.js
+
+// Save user address
+exports.saveUserAddress = async (req, res) => {
+  try {
+    const {
+      region,
+      city,
+      township,
+      fullAddress,
+      phone,
+      label = "Default",
+    } = req.body;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update recent contact info
+    if (phone) user.phone = phone;
+
+    // Add to saved addresses if not exists
+    const existingAddress = user.savedAddresses.find(
+      (addr) =>
+        addr.region === region &&
+        addr.city === city &&
+        addr.township === township &&
+        addr.fullAddress === fullAddress
+    );
+
+    if (!existingAddress) {
+      // If this is the first address, make it default
+      const isDefault = user.savedAddresses.length === 0;
+
+      user.savedAddresses.push({
+        label,
+        region,
+        city,
+        township,
+        fullAddress,
+        isDefault,
+      });
+    }
+
+    await user.save();
+
+    res.json({ message: "Address saved successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Update user profile
 exports.updateProfile = async (req, res) => {

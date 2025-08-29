@@ -1,42 +1,77 @@
 import React from "react";
+import { useCart } from "../context/CartContext";
 
-function OrderDetail() {
+function OrderDetail({ onPlaceOrder, isSubmitting, selectedCity }) {
+  const { cart } = useCart();
+  const cartItems = cart;
+
+  // Calculate subtotal
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
+  // Dynamic shipping calculation based on selected city
+  const calculateShipping = (city) => {
+    const shippingRates = {
+      yangon: 3000,
+      mandalay: 5000,
+      naypyitaw: 6000,
+    };
+    return shippingRates[city?.toLowerCase()] || 7000; // default for others
+  };
+
+  const shipping = calculateShipping(selectedCity);
+  const total = subtotal + shipping;
+
   return (
     <div className="sm:w-[50%] w-full p-6 shadow-md space-y-6 border bg-gray-100 rounded">
       <h2 className="text-2xl font-semibold">Your Order</h2>
 
       {/* Product List */}
       <div className="space-y-4 border-t border-b py-4">
-        <div className="flex justify-between text-sm">
-          <div>
-            <p className="font-medium">T-SHIRT BROWN - MEDIUM</p>
-            <p className="text-gray-500">× 1</p>
+        {cartItems.map((item, index) => (
+          <div
+            key={item._id}
+            className="flex justify-between text-sm items-center"
+          >
+            <div className="flex flex-row w-[70%] items-center space-x-4">
+              <img
+                key={index}
+                src={item.image || "/fallback.png"} // fallback if no image
+                alt={item.itemName || "Product"}
+                className="w-[15%] h-full object-cover"
+              />
+              <div className="flex flex-col">
+                <p className="font-medium">
+                  {item.itemName} - {item.size} - {item.color}
+                </p>
+                <p className="text-gray-500">Quantity: {item.quantity}</p>
+              </div>
+            </div>
+            <p className="font-medium">
+              {(item.price * item.quantity).toLocaleString()} MMK
+            </p>
           </div>
-          <p className="font-medium">54,000 MMK</p>
-        </div>
-
-        <div className="flex justify-between text-sm">
-          <div>
-            <p className="font-medium">T-SHIRT BLACK - MEDIUM</p>
-            <p className="text-gray-500">× 1</p>
-          </div>
-          <p className="font-medium">54,000 MMK</p>
-        </div>
+        ))}
       </div>
 
       {/* Summary */}
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">108,000 MMK</span>
+          <span className="text-black font-semibold">Subtotal</span>
+          <span className="font-medium">{subtotal.toLocaleString()} MMK</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Deliver to City (YANGON)</span>
-          <span className="font-medium">3,000 MMK</span>
+          <span className="text-black font-semibold">
+            Shipping to {selectedCity ? `(${selectedCity})` : "(City)"}
+          </span>
+          <span className="font-medium">{shipping.toLocaleString()} MMK</span>
         </div>
+
         <div className="flex justify-between border-t pt-2 text-base font-semibold">
           <span>Total</span>
-          <span>111,000 MMK</span>
+          <span>{total.toLocaleString()} MMK</span>
         </div>
       </div>
 
@@ -58,14 +93,22 @@ function OrderDetail() {
           Please carefully double-check your order.*
         </p>
         <p className="text-gray-700 font-medium">
-          Once you place this order, your order can’t be exchanged or canceled.
+          Once you place this order, your order can't be exchanged or canceled.
           All sales are final.
         </p>
       </div>
 
       {/* Place Order Button */}
-      <button className="w-full bg-black text-white py-3 hover:bg-gray-800 transition rounded hover:cursor-pointer">
-        Place Order
+      <button
+        onClick={onPlaceOrder}
+        disabled={isSubmitting || cartItems.length === 0}
+        className={`w-full py-3 transition rounded font-medium ${
+          isSubmitting || cartItems.length === 0
+            ? "bg-gray-400 cursor-not-allowed text-gray-200"
+            : "bg-black text-white hover:bg-gray-800 hover:cursor-pointer"
+        }`}
+      >
+        {isSubmitting ? "Processing..." : "Place Order"}
       </button>
     </div>
   );
