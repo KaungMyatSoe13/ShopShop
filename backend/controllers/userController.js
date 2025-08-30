@@ -19,15 +19,84 @@ exports.getMe = async (req, res) => {
 // Add this method to your userController.js
 
 // Save user address
+// exports.saveUserAddress = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       region,
+//       city,
+//       township,
+//       fullAddress,
+//       phone,
+//       label = "Default",
+//       isDefault = false,
+//     } = req.body;
+
+//     const user = await User.findById(req.userId);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // Update recent contact info
+//     if (name) user.name = name;
+//     if (phone) user.phone = phone;
+
+//     // If setting as default, remove default from other addresses
+//     const defaultAddressIndex = user.savedAddresses.findIndex(
+//       (addr) => addr.isDefault
+//     );
+
+//     if (isDefault) {
+//       user.savedAddresses.forEach((addr) => {
+//         addr.isDefault = false;
+//       });
+//     }
+
+//     // Check if address already exists
+//     const existingAddressIndex = user.savedAddresses.findIndex(
+//       (addr) =>
+//         addr.region === region &&
+//         addr.city === city &&
+//         addr.township === township &&
+//         addr.fullAddress === fullAddress
+//     );
+
+//     if (existingAddressIndex !== -1) {
+//       // Update existing address
+//       user.savedAddresses[existingAddressIndex].isDefault = isDefault;
+//       user.savedAddresses[existingAddressIndex].label = label;
+//     } else {
+//       // Add new address
+//       // If this is the first address, make it default regardless
+//       const shouldBeDefault = user.savedAddresses.length === 0 || isDefault;
+
+//       user.savedAddresses.push({
+//         label,
+//         region,
+//         city,
+//         township,
+//         fullAddress,
+//         isDefault: shouldBeDefault,
+//       });
+//     }
+
+//     await user.save();
+
+//     res.json({ message: "Address saved successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 exports.saveUserAddress = async (req, res) => {
   try {
     const {
-      region,
-      city,
+      name,
+      email, // Changed from region
+      phone, // Changed from city
       township,
       fullAddress,
-      phone,
       label = "Default",
+      isDefault = false,
     } = req.body;
 
     const user = await User.findById(req.userId);
@@ -35,35 +104,39 @@ exports.saveUserAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update recent contact info
-    if (phone) user.phone = phone;
-
-    // Add to saved addresses if not exists
-    const existingAddress = user.savedAddresses.find(
-      (addr) =>
-        addr.region === region &&
-        addr.city === city &&
-        addr.township === township &&
-        addr.fullAddress === fullAddress
+    // Find the default address to update
+    const defaultAddressIndex = user.savedAddresses.findIndex(
+      (addr) => addr.isDefault
     );
 
-    if (!existingAddress) {
-      // If this is the first address, make it default
-      const isDefault = user.savedAddresses.length === 0;
-
-      user.savedAddresses.push({
+    if (defaultAddressIndex !== -1) {
+      // Update existing default address
+      user.savedAddresses[defaultAddressIndex] = {
+        ...user.savedAddresses[defaultAddressIndex],
+        name,
+        email, // Save address-specific email
+        phone, // Save address-specific phone
         label,
-        region,
-        city,
         township,
         fullAddress,
-        isDefault,
+        isDefault: true,
+      };
+    } else {
+      // No default address exists, create one
+      user.savedAddresses.push({
+        name,
+        email,
+        phone,
+        label,
+        township,
+        fullAddress,
+        isDefault: true,
       });
     }
 
     await user.save();
 
-    res.json({ message: "Address saved successfully" });
+    res.json({ message: "Address updated successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -202,5 +275,58 @@ exports.deleteAccount = async (req, res) => {
     res.json({ message: "Account deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// controllers/userController.js
+exports.getAddresses = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("savedAddresses name");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      addresses: user.savedAddresses,
+      userName: user.name, // Return user's main name separately
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updateUserAddress = async (req, res) => {
+  try {
+    const { addressId } = req.params;
+    const { region, city, township, fullAddress, label } = req.body;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const addressIndex = user.savedAddresses.findIndex(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+
+    // Update the specific address
+    user.savedAddresses[addressIndex] = {
+      ...user.savedAddresses[addressIndex],
+      region,
+      city,
+      township,
+      fullAddress,
+      label: label || user.savedAddresses[addressIndex].label,
+    };
+
+    await user.save();
+
+    res.json({ message: "Address updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

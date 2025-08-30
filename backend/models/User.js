@@ -14,20 +14,31 @@ const UserSchema = new mongoose.Schema({
     default: "manual",
   }, // Track auth method
   type: { type: String, enum: ["user", "admin"], default: "user" },
+
   savedAddresses: [
     {
-      label: String, // "Home", "Office", etc.
-      region: String,
-      city: String,
+      name: String,
+      email: { type: String, required: true },
+      phone: { type: String, required: true },
+      label: { type: String, default: "Default" },
       township: String,
       fullAddress: String,
       isDefault: { type: Boolean, default: false },
     },
   ],
 
-  // Keep recent contact info
-  phone: String,
-  email: String,
+  // Add these fields to your User schema
+  isGuest: {
+    type: Boolean,
+    default: false,
+  },
+  // Make password optional for guest users
+  password: {
+    type: String,
+    required: function () {
+      return !this.isGuest;
+    },
+  },
 });
 
 module.exports = mongoose.model("User", UserSchema);

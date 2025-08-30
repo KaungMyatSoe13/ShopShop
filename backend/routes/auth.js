@@ -28,7 +28,10 @@ router.post("/login", authController.login);
 
 // User management routes (protected)
 router.get("/me", auth, userController.getMe);
+//Address
 router.post("/save-address", auth, userController.saveUserAddress);
+router.put("/addresses/:addressId", auth, userController.updateUserAddress);
+router.get("/addresses", auth, userController.getAddresses);
 router.put("/profile", auth, userController.updateProfile);
 router.put(
   "/change-password",
@@ -93,5 +96,9 @@ router.get("/admin/details", auth, adminController.getMe, (req, res, next) => {
 router.post("/orders", auth, orderController.createOrder);
 router.get("/orders", auth, orderController.getUserOrders);
 router.get("/orders/:id", auth, orderController.getOrderById);
+
+// Add this route for guest orders (no auth middleware)
+router.post("/guest-orders", orderController.createOrder);
+router.get("/guest-orders/:id", orderController.getOrderById);
 
 module.exports = router;

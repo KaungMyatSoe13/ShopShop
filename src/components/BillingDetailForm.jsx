@@ -8,8 +8,25 @@ function BillingDetailForm({
   return (
     <div className="max-w-2xl w-full sm:w-[50%] mx-auto p-6 bg-white shadow-md space-y-6 border">
       <h2 className="text-2xl font-semibold">Billing & Delivery Details</h2>
-
       {/* Email */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name || ""}
+          onChange={onChange}
+          placeholder="Your Name"
+          className={`w-full border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            errors.name ? "border-red-500" : "border-gray-300"
+          }`}
+        />
+        {errors.name && (
+          <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+        )}
+      </div>
       <div>
         <label className="block text-sm font-medium mb-1">
           Email address <span className="text-red-500">*</span>
@@ -28,7 +45,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.email}</p>
         )}
       </div>
-
       {/* Phone */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -48,7 +64,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
         )}
       </div>
-
       {/* Region Dropdown */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -75,7 +90,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.region}</p>
         )}
       </div>
-
       {/* Deliver to City Dropdown */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -101,7 +115,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.city}</p>
         )}
       </div>
-
       {/* Township */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -121,7 +134,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.township}</p>
         )}
       </div>
-
       {/* Full Address */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -141,7 +153,6 @@ function BillingDetailForm({
           <p className="text-red-500 text-xs mt-1">{errors.fullAddress}</p>
         )}
       </div>
-
       {/* Order Notes */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -156,7 +167,24 @@ function BillingDetailForm({
           className="w-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
       </div>
-
+      {localStorage.getItem("token") && (
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="setAsDefault"
+            name="setAsDefault"
+            checked={formData.setAsDefault || false}
+            onChange={onChange}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label
+            htmlFor="setAsDefault"
+            className="text-sm font-medium text-gray-700"
+          >
+            Set as default address
+          </label>
+        </div>
+      )}
       {/* Payment Methods */}
       <div>
         <label className="block text-sm font-medium mb-2">

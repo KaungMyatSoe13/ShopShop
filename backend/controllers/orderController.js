@@ -4,8 +4,19 @@ const User = require("../models/User");
 // Create new order
 exports.createOrder = async (req, res) => {
   try {
-    const { cartItems, billingDetails, paymentMethod } = req.body;
-    const userId = req.userId; // from auth middleware
+    const { cartItems, billingDetails, paymentMethod, isGuest } = req.body;
+
+    // Handle userId - it will be undefined for guest requests
+    const userId = req.userId || null;
+
+    // Validate required fields
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    if (!billingDetails || !billingDetails.email) {
+      return res.status(400).json({ message: "Billing details are required" });
+    }
 
     // Generate unique order ID
     const orderId = `ORD-${Date.now()}-${Math.random()
@@ -14,7 +25,7 @@ exports.createOrder = async (req, res) => {
 
     // Calculate totals
     const subtotal = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
+      (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
       0
     );
     const shippingCost = calculateShippingCost(billingDetails.city);
@@ -23,27 +34,33 @@ exports.createOrder = async (req, res) => {
     // Create order
     const order = new Order({
       orderId,
-      userId,
+      userId, // Will be null for guest users
+      isGuestOrder: !userId, // This should be true when userId is null
+      guestEmail: !userId ? billingDetails.email : undefined,
+
+      // In createOrder function, update the items mapping
       items: cartItems.map((item) => ({
-        productId: item._id,
-        itemName: item.itemName,
-        size: item.size,
-        color: item.color,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
+        name: item.name || "Unknown",
+        productId: item.productId || item._id, // Use the actual product ID
+        itemName: item.itemName || "Unknown Item",
+        size: item.size || "",
+        color: item.color || "",
+        price: item.price || 0,
+        quantity: item.quantity || 1,
+        image: item.image || "",
       })),
       subtotal,
       shippingCost,
       total,
       shippingAddress: {
+        name: billingDetails.name,
         email: billingDetails.email,
         phone: billingDetails.phone,
         region: billingDetails.region,
         city: billingDetails.city,
         township: billingDetails.township,
         fullAddress: billingDetails.fullAddress,
-        deliveryNotes: billingDetails.orderNotes,
+        deliveryNotes: billingDetails.orderNotes || "",
       },
       payment: {
         method: paymentMethod,
@@ -53,15 +70,13 @@ exports.createOrder = async (req, res) => {
 
     await order.save();
 
-    // Optional: Clear user's cart after successful order
-    // await Cart.findOneAndDelete({ userId });
-
     res.status(201).json({
       message: "Order created successfully",
       order,
       orderId: order.orderId,
     });
   } catch (error) {
+    console.error("Order creation error:", error); // Add this for debugging
     res.status(500).json({ message: error.message });
   }
 };
@@ -81,10 +96,28 @@ exports.getUserOrders = async (req, res) => {
 // Get single order
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findOne({
-      _id: req.params.id,
-      userId: req.userId,
-    });
+    const { id } = req.params;
+    const userId = req.userId; // Will be undefined for guest requests
+
+    let order;
+
+    // Try to find by orderId first (string format like "ORD-...")
+    if (id.startsWith("ORD-")) {
+      if (userId) {
+        // For authenticated users
+        order = await Order.findOne({ orderId: id, userId: userId });
+      } else {
+        // For guest users
+        order = await Order.findOne({ orderId: id, userId: null });
+      }
+    } else {
+      // Try to find by MongoDB _id
+      if (userId) {
+        order = await Order.findOne({ _id: id, userId: userId });
+      } else {
+        order = await Order.findOne({ _id: id, userId: null });
+      }
+    }
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -92,6 +125,7 @@ exports.getOrderById = async (req, res) => {
 
     res.json(order);
   } catch (error) {
+    console.error("Get order error:", error);
     res.status(500).json({ message: error.message });
   }
 };

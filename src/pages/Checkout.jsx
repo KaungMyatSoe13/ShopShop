@@ -22,6 +22,7 @@ function Checkout() {
     fullAddress: "",
     orderNotes: "",
     paymentMethod: "",
+    setAsDefault: false, // Add this
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -42,6 +43,31 @@ function Checkout() {
         ...prev,
         [name]: "",
       }));
+    }
+  };
+
+  const saveAsDefaultAddress = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch("http://localhost:5000/api/auth/save-address", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.name, // Use email prefix as name, or add a name field
+          email: formData.email,
+          phone: formData.phone,
+          township: formData.township,
+          fullAddress: formData.fullAddress,
+          label: "Default",
+          isDefault: true,
+        }),
+      });
+      console.log(formData.name);
+    } catch (error) {
+      console.error("Failed to save default address:", error);
     }
   };
 
@@ -67,44 +93,53 @@ function Checkout() {
   const handlePlaceOrder = async () => {
     if (!validateForm()) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please log in to place an order");
-      navigate("/profile/loginPage");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       const token = localStorage.getItem("token");
+      const isGuest = !token;
 
       const orderData = {
         cartItems: cart,
         billingDetails: formData,
         paymentMethod: formData.paymentMethod,
+        isGuest,
       };
 
-      const response = await fetch(`${BACKEND_URL}/api/auth/orders`, {
+      // Use different endpoints for guest vs authenticated users
+      const endpoint = isGuest ? "/api/auth/guest-orders" : "/api/auth/orders";
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      // Only add authorization header for authenticated users
+      if (!isGuest) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(orderData),
       });
 
       if (response.ok) {
         const result = await response.json();
 
+        // Save address as default if requested and user is logged in
+        if (formData.setAsDefault && !isGuest) {
+          await saveAsDefaultAddress();
+          alert("Default address saved successfully!");
+        }
+
         // Clear cart after successful order
         clearCart();
 
-        // Redirect to success page or order confirmation
         // Route based on payment method
         if (formData.paymentMethod === "cod") {
           alert("Order placed successfully! Pay at your house when delivered.");
-          navigate("/profile/orders"); // or wherever you want
+          // Change this navigation
+          navigate(`/order-success/${result.orderId}`);
         } else if (formData.paymentMethod === "kbzpay") {
           navigate(`/qr/${result.orderId}`);
         }

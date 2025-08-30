@@ -10,6 +10,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import CategoryPage from "../pages/CategoryPage";
 import ProductPage from "../pages/ProductPage";
+import OrderSuccess from "../pages/OrderSuccess";
 
 export const PublicRoutes = (
   <>
@@ -30,5 +31,6 @@ export const PublicRoutes = (
       element={<CategoryPage />}
     />
     <Route path="/product/:id" element={<ProductPage />} />
+    <Route path="/order-success/:orderId" element={<OrderSuccess />} />
   </>
 );

@@ -6,12 +6,16 @@ const orderSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+      default: null,
     },
 
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        productId: {
+          type: mongoose.Schema.Types.Mixed, // Change from ObjectId to Mixed
+          required: true,
+        },
         itemName: String,
         size: String,
         color: String,
@@ -26,6 +30,7 @@ const orderSchema = new mongoose.Schema(
     total: { type: Number, required: true },
 
     shippingAddress: {
+      name: { type: String, required: true },
       email: { type: String, required: true },
       phone: { type: String, required: true },
       region: { type: String, required: true },
@@ -57,6 +62,17 @@ const orderSchema = new mongoose.Schema(
         "cancelled",
       ],
       default: "pending",
+    },
+    // Add these fields to your Order schema
+    isGuestOrder: {
+      type: Boolean,
+      default: false,
+    },
+    guestEmail: {
+      type: String,
+      required: function () {
+        return this.isGuestOrder;
+      },
     },
   },
   {

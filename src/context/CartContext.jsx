@@ -138,6 +138,7 @@ export const CartProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to add to cart:", error);
       }
+      // In the guest user section of addToCart
     } else {
       const existingItem = cart.find(
         (item) => item.productId === productId && item.size === size
@@ -151,7 +152,7 @@ export const CartProvider = ({ children }) => {
                 ...item,
                 quantity: item.quantity + quantity,
                 itemName: itemName,
-              } // ✅ ensure itemName is preserved
+              }
             : item
         );
       } else {
@@ -159,14 +160,14 @@ export const CartProvider = ({ children }) => {
           ...cart,
           {
             _id: Date.now(),
-            productId,
+            productId, // Keep the original productId from the database
             quantity,
             size,
             image,
             color,
             price,
             subCategory,
-            itemName, // ✅ add this
+            itemName,
           },
         ];
       }
