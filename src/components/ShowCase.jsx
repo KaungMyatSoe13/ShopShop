@@ -70,6 +70,17 @@ function ShowCase() {
     navigate(`/product/${productId}`);
   };
 
+  const isProductOutOfStock = (product) => {
+    if (!product.variants || product.variants.length === 0) return true;
+
+    // Check if all sizes in all variants have 0 stock
+    return product.variants.every(
+      (variant) =>
+        !variant.sizes ||
+        variant.sizes.length === 0 ||
+        variant.sizes.every((size) => size.stock === 0)
+    );
+  };
   return (
     <div className="ml-7.5 flex-col flex w-full h-190 sm:h-full sm:flex-row sm:ml-13">
       {/* LEFT SIDE */}
@@ -142,9 +153,14 @@ function ShowCase() {
                 {item.itemName || item.subCategory}
               </span>
 
-              <span className="text-[12px] sm:text-sm font-bold">
-                {item.price}MMK
+              <span className="line-clamp-2 font-semibold">
+                {item.name || item.itemName}
               </span>
+              {isProductOutOfStock(item) ? (
+                <span className="font-bold text-red-600">Out of Stock</span>
+              ) : (
+                <span className="font-bold">${item.price}</span>
+              )}
             </div>
           ))}
         </div>

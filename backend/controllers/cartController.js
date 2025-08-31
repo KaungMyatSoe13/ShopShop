@@ -6,23 +6,18 @@ exports.addToCart = async (req, res) => {
     const { productId, quantity = 1, size } = req.body;
     const userId = req.userId;
 
-    // Find the product by ID (using the new Product schema)
     const product = await Product.findById(productId);
-
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // For the new Product schema, we need to find the right variant and size
-    // Since your current implementation sends the main product ID, we'll work with that
-
-    // Check if the requested size exists in any variant
+    // Find the right variant and size
     let foundVariant = null;
     let foundSize = null;
 
     for (const variant of product.variants) {
       const sizeData = variant.sizes.find((s) => s.size === size);
-      if (sizeData && sizeData.stock >= quantity) {
+      if (sizeData) {
         foundVariant = variant;
         foundSize = sizeData;
         break;
@@ -31,44 +26,55 @@ exports.addToCart = async (req, res) => {
 
     if (!foundVariant || !foundSize) {
       return res.status(400).json({
-        message: "Size not available or insufficient stock",
+        message: "Size not available",
       });
     }
 
-    // Create a unique identifier for this specific variant + size combination
-    const variantId = foundVariant._id || foundVariant.color; // Use variant ID or color as fallback
+    // Check if sufficient stock available
+    if (foundSize.stock < quantity) {
+      return res.status(400).json({
+        message: `Only ${foundSize.stock} items available in stock`,
+        availableStock: foundSize.stock,
+      });
+    }
 
-    // Check if item already exists in cart
+    // Check existing cart item to prevent over-adding
     const existingCartItem = await Cart.findOne({
       userId,
       productId: product._id,
-      variantId: variantId,
+      variantId: foundVariant._id || foundVariant.color,
       size,
     });
 
     if (existingCartItem) {
-      // Update quantity
-      existingCartItem.quantity += parseInt(quantity);
+      const totalQuantity = existingCartItem.quantity + parseInt(quantity);
+      if (totalQuantity > foundSize.stock) {
+        return res.status(400).json({
+          message: `Cannot add ${quantity} more. Only ${
+            foundSize.stock - existingCartItem.quantity
+          } available (you already have ${existingCartItem.quantity} in cart)`,
+          availableStock: foundSize.stock,
+          currentInCart: existingCartItem.quantity,
+        });
+      }
+      existingCartItem.quantity = totalQuantity;
       await existingCartItem.save();
     } else {
-      // Create new cart item
       const newCartItem = new Cart({
         userId,
         productId: product._id,
-        variantId: variantId,
+        variantId: foundVariant._id || foundVariant.color,
         quantity: parseInt(quantity),
         size,
         color: foundVariant.color,
         image: foundVariant.images?.[0] || "",
-        price: product.price, // Use product price
+        price: product.price,
         itemName: product.itemName,
         categoryName: product.mainCategory,
       });
-
       await newCartItem.save();
     }
 
-    // Return updated cart
     const updatedCart = await Cart.find({ userId }).sort({ createdAt: -1 });
     res.json({
       message: "Item added to cart successfully",

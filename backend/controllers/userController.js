@@ -330,3 +330,198 @@ exports.updateUserAddress = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Add these methods to your userController.js file
+// Make sure to add const User = require("../models/User"); at the top if not already there
+
+// Get user favorites
+exports.getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("favorites");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Sort by most recently added
+    const sortedFavorites = user.favorites.sort(
+      (a, b) => new Date(b.addedAt) - new Date(a.addedAt)
+    );
+
+    res.json({ favorites: sortedFavorites });
+  } catch (err) {
+    console.error("Get favorites error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Add to favorites
+exports.addToFavorites = async (req, res) => {
+  try {
+    const {
+      productId,
+      productName,
+      productPrice,
+      productImage,
+      selectedColor,
+      selectedSize,
+    } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if product is already in favorites
+    const existingFavorite = user.favorites.find(
+      (fav) => fav.productId.toString() === productId.toString()
+    );
+
+    if (existingFavorite) {
+      return res.status(400).json({ message: "Product already in favorites" });
+    }
+
+    // Add to favorites
+    user.favorites.push({
+      productId,
+      productName,
+      productPrice,
+      productImage,
+      selectedColor,
+      selectedSize,
+      addedAt: new Date(),
+    });
+
+    await user.save();
+
+    res.json({ message: "Added to favorites successfully" });
+  } catch (err) {
+    console.error("Add to favorites error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Remove from favorites
+exports.removeFromFavorites = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find and remove the favorite
+    const favoriteIndex = user.favorites.findIndex(
+      (fav) => fav.productId.toString() === productId.toString()
+    );
+
+    if (favoriteIndex === -1) {
+      return res
+        .status(404)
+        .json({ message: "Product not found in favorites" });
+    }
+
+    user.favorites.splice(favoriteIndex, 1);
+    await user.save();
+
+    res.json({ message: "Removed from favorites successfully" });
+  } catch (err) {
+    console.error("Remove from favorites error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Check if product is favorited
+exports.checkFavorite = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const user = await User.findById(req.userId).select("favorites");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFavorited = user.favorites.some(
+      (fav) => fav.productId.toString() === productId.toString()
+    );
+
+    res.json({ isFavorited });
+  } catch (err) {
+    console.error("Check favorite error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Toggle favorite (add if not exists, remove if exists)
+exports.toggleFavorite = async (req, res) => {
+  try {
+    const {
+      productId,
+      productName,
+      productPrice,
+      productImage,
+      selectedColor,
+      selectedSize,
+    } = req.body;
+
+    // Add debug logging
+    console.log("Toggle favorite request:", {
+      productId,
+      productName,
+      productPrice,
+      productImage,
+      selectedColor,
+      selectedSize,
+    });
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if product is already in favorites
+    const favoriteIndex = user.favorites.findIndex(
+      (fav) => fav.productId.toString() === productId.toString()
+    );
+
+    if (favoriteIndex !== -1) {
+      // Remove from favorites
+      user.favorites.splice(favoriteIndex, 1);
+      await user.save();
+      console.log("Removed from favorites");
+      return res.json({
+        message: "Removed from favorites",
+        isFavorited: false,
+      });
+    } else {
+      // Add to favorites
+      const favoriteItem = {
+        productId,
+        productName,
+        productPrice,
+        productImage,
+        selectedColor,
+        selectedSize,
+        addedAt: new Date(),
+      };
+
+      console.log("Adding to favorites:", favoriteItem);
+
+      user.favorites.push(favoriteItem);
+      await user.save();
+
+      console.log("Added to favorites successfully");
+      return res.json({ message: "Added to favorites", isFavorited: true });
+    }
+  } catch (err) {
+    console.error("Toggle favorite error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};

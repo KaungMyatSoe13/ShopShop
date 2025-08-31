@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const User = require("../models/User");
+const Product = require("../models/Product");
 
 // Create new order
 exports.createOrder = async (req, res) => {
@@ -28,8 +29,54 @@ exports.createOrder = async (req, res) => {
       (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
       0
     );
+
     const shippingCost = calculateShippingCost(billingDetails.city);
     const total = subtotal + shippingCost;
+
+    // Check stock availability and reduce stock
+    for (const item of cartItems) {
+      const product = await Product.findById(item.productId || item._id);
+
+      if (!product) {
+        return res.status(404).json({
+          message: `Product not found: ${item.itemName}`,
+        });
+      }
+
+      // Find the variant and size
+      let foundVariant = null;
+      let foundSizeIndex = -1;
+
+      for (const variant of product.variants) {
+        const sizeIndex = variant.sizes.findIndex((s) => s.size === item.size);
+        if (sizeIndex !== -1 && variant.color === item.color) {
+          foundVariant = variant;
+          foundSizeIndex = sizeIndex;
+          break;
+        }
+      }
+
+      if (!foundVariant || foundSizeIndex === -1) {
+        return res.status(400).json({
+          message: `Size ${item.size} in ${item.color} not available for ${item.itemName}`,
+        });
+      }
+
+      // Check if sufficient stock
+      const currentStock = foundVariant.sizes[foundSizeIndex].stock;
+      if (currentStock < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.itemName}. Only ${currentStock} available, but ${item.quantity} requested.`,
+        });
+      }
+
+      // Reduce stock
+      foundVariant.sizes[foundSizeIndex].stock -= item.quantity;
+
+      // Save the product with updated stock
+      await product.save();
+    }
+    // END OF STOCK REDUCTION CODE
 
     // Create order
     const order = new Order({

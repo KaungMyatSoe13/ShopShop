@@ -117,6 +117,15 @@ function ProductRow({
     fetchProducts();
   }, [category]);
 
+  const isProductOutOfStock = (product) => {
+    // For products from by-color endpoint, check if this specific variant has any stock
+    if (product.sizes && Array.isArray(product.sizes)) {
+      return product.sizes.every((size) => size.stock === 0);
+    }
+
+    // Fallback: if no sizes data, assume in stock
+    return false;
+  };
   const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
 
   const currentProducts = products.slice(
@@ -141,7 +150,7 @@ function ProductRow({
   return (
     <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
       {/* Product Count */}
-      <div className="mb-4 text-gray-600">
+      <div className="mb-4 text-gray-600 ml-5">
         Showing {currentProducts.length} of {products.length} products
       </div>
 
@@ -150,8 +159,10 @@ function ProductRow({
         {currentProducts.map((item) => (
           <div
             key={item._id}
-            onClick={() => handleProductClick(item.originalId)} // Use originalId for navigation
-            className="flex flex-col items-start w-full bg-white hover:shadow-lg border border-gray-200 p-2 sm:p-4 cursor-pointer transition-shadow group"
+            onClick={() => handleProductClick(item.originalId)}
+            className={`flex flex-col items-start w-full bg-white hover:shadow-lg border border-gray-200 p-2 sm:p-4 cursor-pointer transition-shadow group ${
+              isProductOutOfStock(item) ? "opacity-60" : ""
+            }`}
           >
             <div className="relative w-full h-[250px] sm:h-[300px] overflow-hidden">
               <img
@@ -177,7 +188,11 @@ function ProductRow({
               <span className="line-clamp-2 font-semibold">
                 {item.name || item.itemName}
               </span>
-              <span className="font-bold">${item.price}</span>
+              {isProductOutOfStock(item) ? (
+                <span className="font-bold text-red-600">Out of Stock</span>
+              ) : (
+                <span className="font-bold">${item.price}</span>
+              )}
             </div>
           </div>
         ))}

@@ -7,12 +7,12 @@ const UserSchema = new mongoose.Schema({
   displayName: { type: String },
   phone: { type: String, default: "" },
   verified: { type: Boolean, default: false },
-  googleId: { type: String }, // Add this field
+  googleId: { type: String },
   authMethod: {
     type: String,
     enum: ["manual", "google", "both"],
     default: "manual",
-  }, // Track auth method
+  },
   type: { type: String, enum: ["user", "admin"], default: "user" },
 
   savedAddresses: [
@@ -27,12 +27,31 @@ const UserSchema = new mongoose.Schema({
     },
   ],
 
-  // Add these fields to your User schema
+  // Add favorites array
+  favorites: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      // Store additional info for quick access without populating
+      productName: String,
+      productPrice: Number,
+      productImage: String,
+      selectedColor: String,
+      selectedSize: String,
+      addedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
   isGuest: {
     type: Boolean,
     default: false,
   },
-  // Make password optional for guest users
   password: {
     type: String,
     required: function () {

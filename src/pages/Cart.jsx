@@ -25,7 +25,7 @@ function Cart() {
       <div className="flex flex-col min-h-screen">
         <Navbar />
 
-        <div className="flex flex-col items-center px-4 sm:pt-10 w-full">
+        <div className="flex-grow flex flex-col items-center px-4 sm:pt-10 w-full">
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <h2 className="text-2xl font-semibold mb-4">

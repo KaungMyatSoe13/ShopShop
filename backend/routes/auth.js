@@ -10,6 +10,8 @@ const productController = require("../controllers/ProductController");
 const adminController = require("../controllers/adminController");
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
+const adminOrderController = require("../controllers/adminOrderController");
+
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -92,6 +94,39 @@ router.get("/admin/details", auth, adminController.getMe, (req, res, next) => {
   next();
 });
 
+// ADMIN ROUTES (must come BEFORE regular user routes)
+// All admin routes use auth middleware + admin check middleware
+router.get(
+  "/admin/orders",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminOrderController.getAllOrders
+);
+router.get(
+  "/admin/orders/stats",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminOrderController.getOrderStats
+);
+router.get(
+  "/admin/orders/search",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminOrderController.searchOrders
+);
+router.get(
+  "/admin/orders/:id",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminOrderController.getOrderDetails
+);
+router.put(
+  "/admin/orders/:id/status",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminOrderController.updateOrderStatus
+);
+
 // Order routes
 router.post("/orders", auth, orderController.createOrder);
 router.get("/orders", auth, orderController.getUserOrders);
@@ -100,5 +135,16 @@ router.get("/orders/:id", auth, orderController.getOrderById);
 // Add this route for guest orders (no auth middleware)
 router.post("/guest-orders", orderController.createOrder);
 router.get("/guest-orders/:id", orderController.getOrderById);
+
+// Favorites routes
+router.get("/favorites", auth, userController.getFavorites);
+router.post("/favorites/toggle", auth, userController.toggleFavorite);
+router.post("/favorites", auth, userController.addToFavorites);
+router.delete(
+  "/favorites/:productId",
+  auth,
+  userController.removeFromFavorites
+);
+router.get("/favorites/check/:productId", auth, userController.checkFavorite);
 
 module.exports = router;

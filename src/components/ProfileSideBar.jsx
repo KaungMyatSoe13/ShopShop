@@ -8,7 +8,7 @@ function ProfileSideBar() {
     { name: "Orders", path: "order" },
     { name: "Addresses", path: "addresses" },
     { name: "Account Details", path: "details" },
-    { name: "Favourite", path: "favourite" },
+    { name: "Favourites", path: "favourites" },
     { name: "Logout", path: "loginPage" },
   ];
 

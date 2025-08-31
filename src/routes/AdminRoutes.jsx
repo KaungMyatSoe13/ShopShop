@@ -5,6 +5,7 @@ import AdminHome from "../adminPages/adminHome";
 import Product from "../adminPages/Product";
 import AddProduct from "../adminPages/AddProduct";
 import AccountDetails from "../adminPages/AccountDetails";
+import AdminOrders from "../adminPages/AdminOrders";
 // Later: import Orders, Customers, etc.
 
 export const AdminRoutes = (
@@ -13,5 +14,6 @@ export const AdminRoutes = (
     <Route path="/admin/products" element={<Product />} />
     <Route path="/admin/products/add" element={<AddProduct />} />
     <Route path="/admin/details" element={<AccountDetails />} />
+    <Route path="/admin/orders" element={<AdminOrders />} />
   </>
 );

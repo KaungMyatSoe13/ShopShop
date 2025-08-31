@@ -11,7 +11,7 @@ import OrderDetail from "../pages/OrderDetail";
 export const UserRoutes = (
   <>
     <Route path="/profile" element={<Profile />} />
-    <Route path="/profile/favourite" element={<Favourite />} />
+    <Route path="/profile/favourites" element={<Favourite />} />
     <Route path="/profile/order" element={<Order />} />
     <Route path="/profile/addresses" element={<Addresses />} />
     <Route path="/profile/details" element={<AccountDetails />} />

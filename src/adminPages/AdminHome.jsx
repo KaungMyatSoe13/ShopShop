@@ -24,7 +24,7 @@ function AdminHome() {
 
   const menuItems = [
     { name: "Dashboard", path: "dashboard" },
-    { name: "Orders", path: "order" },
+    { name: "Orders", path: "orders" },
     { name: "Products", path: "products" },
     { name: "Account Details", path: "details" },
     { name: "Customers", path: "customers" },
@@ -33,7 +33,7 @@ function AdminHome() {
   ];
 
   const cardItems = [
-    { name: "Orders", icon: <IoClipboardOutline />, path: "order" },
+    { name: "Orders", icon: <IoClipboardOutline />, path: "orders" },
     { name: "Products", icon: <BsBox2 />, path: "products" },
     { name: "Account details", icon: <BsPeople />, path: "details" },
     { name: "Customers", icon: <SlPeople />, path: "customers" },

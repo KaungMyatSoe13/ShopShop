@@ -36,6 +36,10 @@ function ProductPage() {
   const [isFading, setIsFading] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
 
+  // Add these state variables
+
+  const [availableStock, setAvailableStock] = useState(0);
+  const [isOutOfStock, setIsOutOfStock] = useState(false);
   const { addToCart } = useCart();
 
   const changeImageWithFade = (newIndex) => {
@@ -45,6 +49,27 @@ function ProductPage() {
       setSelectedImageIndex(newIndex); // change image after fade out
       setIsFading(false); // fade in
     }, 300); // duration matches CSS transition duration
+  };
+
+  // Add this function to check stock when size/color changes
+  const checkStock = (size, color) => {
+    if (!product || !size || !color) {
+      setAvailableStock(0);
+      setIsOutOfStock(true);
+      return;
+    }
+
+    const variant = product.variants.find((v) => v.color === color);
+    if (variant) {
+      const sizeData = variant.sizes.find((s) => s.size === size);
+      if (sizeData) {
+        setAvailableStock(sizeData.stock);
+        setIsOutOfStock(sizeData.stock === 0);
+        return;
+      }
+    }
+    setAvailableStock(0);
+    setIsOutOfStock(true);
   };
 
   // For swipe handling
@@ -76,6 +101,11 @@ function ProductPage() {
             productData.variants[0].sizes.length > 0
           ) {
             setSize(productData.variants[0].sizes[0].size);
+            // Check stock for the default selection
+            checkStock(
+              productData.variants[0].sizes[0].size,
+              productData.variants[0].color
+            );
           }
         }
       } catch (error) {
@@ -86,10 +116,95 @@ function ProductPage() {
       }
     };
 
+    const checkFavoriteStatus = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.log("No token found, skipping favorite check");
+          return; // User not logged in, skip favorite check
+        }
+
+        console.log("Checking favorite status for product:", id);
+        const url = `http://localhost:5000/api/favorites/check/${id}`;
+        console.log("Request URL:", url);
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Response status:", response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Favorite status:", data.isFavorited);
+          setIsFavorited(data.isFavorited);
+        } else {
+          console.error(
+            "Failed to check favorite status:",
+            response.status,
+            response.statusText
+          );
+        }
+      } catch (error) {
+        console.error("Failed to check favorite status:", error);
+        // Don't show error to user, just keep default false state
+      }
+    };
+
     if (id) {
       fetchProduct();
+      checkFavoriteStatus();
     }
   }, [id]);
+
+  // Add the handleFavoriteToggle function
+  // Add the handleFavoriteToggle function
+  const handleFavoriteToggle = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login to add favorites");
+        return;
+      }
+
+      const favoriteData = {
+        productId: product._id,
+        productName: product.name || product.title,
+        productPrice: product.price,
+        productImage: selectedVariant?.images?.[0] || product.images?.[0] || "",
+        selectedColor: selectedVariant?.color || "",
+        selectedSize: size || "",
+      };
+
+      // Updated URL to match your working API path
+      const response = await fetch(
+        `http://localhost:5000/api/favorites/toggle`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(favoriteData),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsFavorited(data.isFavorited);
+        // Optional: Show success message
+        // You could add a toast notification here
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to update favorites");
+      }
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+      alert("Failed to update favorites");
+    }
+  };
 
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
@@ -156,6 +271,56 @@ function ProductPage() {
     return [];
   };
 
+  // Update your add to cart function
+  const handleAddToCart = async () => {
+    // Validation checks
+    if (!size) {
+      alert("Please select a size");
+      return;
+    }
+
+    if (!selectedVariant?.color) {
+      alert("Please select a color");
+      return;
+    }
+    if (quantity > availableStock) {
+      alert(`Sorry this item is out of stock`);
+      return;
+    }
+
+    if (isOutOfStock) {
+      alert("This item is out of stock");
+      return;
+    }
+
+    // Console logging for debugging
+    console.log("Adding to cart:", {
+      productId: product._id,
+      itemName: product.itemName,
+      size: size, // Changed from selectedSize
+      color: selectedVariant?.color, // Changed from selectedColor
+      quantity: quantity,
+      price: product.price,
+      availableStock: availableStock,
+    });
+
+    try {
+      await addToCart(
+        product._id,
+        quantity,
+        size, // Changed from selectedSize
+        selectedVariant?.images?.[0] || "",
+        selectedVariant?.color, // Changed from selectedColor
+        product.price,
+        product.subCategory,
+        product.itemName
+      );
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      alert(error.message || "Failed to add to cart");
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -211,7 +376,7 @@ function ProductPage() {
           <div className="w-full md:w-1/2 flex flex-col items-center relative">
             {/* Heart Button */}
             <button
-              onClick={() => setIsFavorited(!isFavorited)}
+              onClick={handleFavoriteToggle}
               className="absolute top-2 right-2 z-10"
               aria-label="Favorite"
             >
@@ -284,9 +449,10 @@ function ProductPage() {
                       onClick={() => {
                         setSelectedVariant(variant);
                         setSelectedImageIndex(0);
-                        // Reset size when changing variant
                         if (variant.sizes && variant.sizes.length > 0) {
-                          setSize(variant.sizes[0].size);
+                          const firstSize = variant.sizes[0].size;
+                          setSize(firstSize);
+                          checkStock(firstSize, variant.color); // ADD THIS LINE
                         }
                       }}
                       className={`px-4 py-2 border transition hover:cursor-pointer ${
@@ -304,16 +470,21 @@ function ProductPage() {
             {/* Size */}
             <div>
               <h3 className="font-semibold text-sm mb-2">Size</h3>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap ">
                 {availableSizes.map((s, index) => (
                   <button
                     key={`size-${index}-${s}`}
-                    onClick={() => setSize(s)}
-                    className={`px-4 py-2 border transition hover:cursor-pointer ${
-                      size === s
-                        ? "bg-black text-white"
-                        : "bg-white text-black hover:bg-gray-300"
-                    }`}
+                    onClick={() => {
+                      setSize(s);
+                      checkStock(s, selectedVariant?.color);
+                    }}
+                    className={`px-4 py-2 border transition hover:cursor-pointer
+    ${
+      size === s
+        ? "bg-black text-white border-black" // selected state (no hover color change)
+        : "bg-white text-black border-gray-400 hover:bg-gray-300" // non-selected hover
+    }
+  `}
                   >
                     {s}
                   </button>
@@ -335,39 +506,29 @@ function ProductPage() {
                 className="w-20 px-3 py-2 border  focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
+            {size && selectedVariant?.color && (
+              <p
+                className={`text-sm ${
+                  availableStock < 5 ? "text-red-600" : "text-green-600"
+                }`}
+              >
+                {availableStock > 0
+                  ? `${availableStock} in stock`
+                  : "Out of stock"}
+              </p>
+            )}
 
             {/* Add to Cart Button */}
             <button
-              className="mt-6 bg-black text-white px-6 py-3 hover:opacity-80 transition w-full font-semibold hover:cursor-pointer"
-              onClick={() => {
-                if (!quantity || !size || !selectedVariant) {
-                  alert("Please select a size and quantity.");
-                  return;
-                }
-
-                addToCart(
-                  product._id,
-                  parseInt(quantity),
-                  size,
-                  selectedVariant.images?.[0] || "",
-                  selectedVariant.color,
-                  product.price,
-                  product.subCategory,
-                  product.itemName
-                );
-                console.log("Added to cart:", {
-                  productId: product._id,
-                  quantity: parseInt(quantity),
-                  size,
-                  image: selectedVariant.images?.[0] || "",
-                  color: selectedVariant.color,
-                  price: product.price,
-                  subCategory: product.subCategory,
-                  itemName: product.itemName,
-                });
-              }}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock || !size || !selectedVariant?.color}
+              className={`w-full py-3 transition  font-medium ${
+                isOutOfStock || !size || !selectedVariant?.color
+                  ? "bg-gray-400 cursor-not-allowed text-gray-200"
+                  : "bg-black text-white hover:bg-gray-800 hover:cursor-pointer"
+              }`}
             >
-              Add To Cart
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </button>
 
             {/* Product Categories/Tags */}

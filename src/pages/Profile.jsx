@@ -29,7 +29,7 @@ function Profile() {
     { name: "Orders", path: "order" },
     { name: "Addresses", path: "addresses" },
     { name: "Account Details", path: "details" },
-    { name: "Favourite", path: "favourite" },
+    { name: "Favourites", path: "favourites" },
     { name: "Logout", path: "loginPage" },
   ];
 
@@ -37,7 +37,7 @@ function Profile() {
     { name: "Orders", icon: <IoClipboardOutline />, path: "order" },
     { name: "Addresses", icon: <IoLocationOutline />, path: "addresses" },
     { name: "Account details", icon: <BsPeople />, path: "details" },
-    { name: "Wishlist", icon: <CiHeart />, path: "favourite" },
+    { name: "Wishlist", icon: <CiHeart />, path: "favourites" },
     { name: "Logout", icon: <CiLogout />, path: "loginPage" },
   ];
 

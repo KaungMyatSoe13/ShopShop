@@ -190,7 +190,7 @@ function Navbar() {
         {/* Right Icons */}
         <li className="flex gap-0 sm:gap-5 items-center ml-auto">
           <NavLink
-            to="/profile/favourite"
+            to="/profile/favourites"
             className="flex flex-col items-center gap-1 mx-2"
           >
             <FaHeart

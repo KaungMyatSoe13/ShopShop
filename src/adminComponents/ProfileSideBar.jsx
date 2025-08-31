@@ -8,7 +8,7 @@ function ProfileSideBar() {
 
   const menuItems = [
     { name: "Dashboard", path: "dashboard" },
-    { name: "Orders", path: "order" },
+    { name: "Orders", path: "orders" },
     {
       name: "Products",
       dropdown: [
