@@ -11,6 +11,7 @@ const adminController = require("../controllers/adminController");
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
 const adminOrderController = require("../controllers/adminOrderController");
+const adminUserController = require("../controllers/adminUserController");
 
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
@@ -125,6 +126,13 @@ router.put(
   auth,
   adminOrderController.checkAdminAccess,
   adminOrderController.updateOrderStatus
+);
+
+router.get(
+  "/admin/customers",
+  auth,
+  adminOrderController.checkAdminAccess,
+  adminUserController.getAllUsers
 );
 
 // Order routes

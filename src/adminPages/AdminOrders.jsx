@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import ProfileSideBar from "../adminComponents/ProfileSideBar";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -49,12 +46,8 @@ function AdminOrders() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-
       <div className="flex flex-1 justify-center w-full">
         <div className="flex flex-col sm:flex-row w-[95%] border mt-4">
-          <ProfileSideBar />
-
           <div className="flex-grow p-6 text-gray-700 bg-gray-50 w-full">
             <h1 className="text-2xl font-bold mb-6 ml-0 sm:ml-6 font-playfair">
               My Orders ({orders.length})
@@ -152,7 +145,7 @@ function AdminOrders() {
                             <button
                               className="bg-gray-500 text-white px-3 py-2 hover:bg-gray-600 transition text-xs hover:cursor-pointer"
                               onClick={() =>
-                                navigate(`/order/${order.orderId}`)
+                                navigate(`/admin/order/${order.orderId}`)
                               }
                             >
                               View Details
@@ -227,8 +220,6 @@ function AdminOrders() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

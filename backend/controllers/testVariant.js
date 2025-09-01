@@ -1,54 +1,45 @@
-// controllers/testVariant.js
-require("dotenv").config({ path: "../.env" }); // <-- point to your .env file if outside backend
+// controllers/testGetAllUsers.js
+require("dotenv").config({ path: "../.env" }); // adjust path if needed
 const mongoose = require("mongoose");
-const Product = require("../models/Product"); // adjust path
+const User = require("../models/User"); // adjust path
+const jwt = require("jsonwebtoken");
 
-const variantId = "68ada3463692154d42078dbd";
-
-async function testVariant() {
+async function testGetAllUsers() {
   try {
-    console.log("Connecting to MongoDB Atlas...");
-    console.log("MONGO_URI:", process.env.MONGO_URI);
+    console.log("Connecting to MongoDB...");
+    if (!process.env.MONGO_URI) throw new Error("MONGO_URI is not defined");
 
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is not defined");
-    }
-
-    // Connect to Atlas
     await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connected to MongoDB");
 
-    // Search for the variant across all genders
-    const product = await Product.findOne({
-      $or: [
-        { "genders.male.variants._id": variantId },
-        { "genders.female.variants._id": variantId },
-        { "genders.unisex.variants._id": variantId },
-      ],
-    });
-
-    if (!product) {
-      console.log("Variant not found");
-      return;
+    // Optional: create an admin user if none exists for testing
+    let admin = await User.findOne({ type: "admin" });
+    if (!admin) {
+      admin = await User.create({
+        name: "Admin",
+        email: "aa@gmail.com",
+        password: "admin123",
+        type: "admin",
+      });
+      console.log("Created test admin user");
     }
 
-    // Loop to find product item and variant
-    for (const genderKey of ["male", "female", "unisex"]) {
-      const items = product.genders[genderKey] || [];
-      for (const item of items) {
-        const variant = item.variants.find(
-          (v) => v._id.toString() === variantId
-        );
-        if (variant) {
-          console.log("Product Item Name:", item.name);
-          console.log("Variant Color:", variant.color);
-          console.log(
-            "Variant Sizes:",
-            variant.sizes.map((s) => s.size).join(", ")
-          );
-          break;
-        }
+    // Simulate admin authentication by creating a token
+    const token = jwt.sign(
+      { id: admin._id, type: "admin" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
       }
-    }
+    );
+    console.log("Generated JWT token for admin:", token);
+
+    // Fetch all users (simulate controller logic)
+    const users = await User.find().sort({ createdAt: -1 });
+    console.log(`Found ${users.length} users:`);
+    users.forEach((u) => {
+      console.log(`- ${u.name} | ${u.email} | role: ${u.role}`);
+    });
 
     await mongoose.disconnect();
     console.log("Disconnected from MongoDB");
@@ -57,4 +48,4 @@ async function testVariant() {
   }
 }
 
-testVariant();
+testGetAllUsers();
