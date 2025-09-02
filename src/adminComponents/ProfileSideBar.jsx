@@ -26,7 +26,7 @@ function ProfileSideBar() {
     },
     { name: "Account Details", path: "details" },
     { name: "Customers", path: "customers" },
-    { name: "Inventory", path: "inventory" },
+    // { name: "Inventory", path: "inventory" },
     { name: "Logout", path: "loginPage" },
   ];
 

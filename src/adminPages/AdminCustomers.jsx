@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IoMdArrowBack } from "react-icons/io";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -66,6 +67,15 @@ function AdminCustomers() {
       <div className="flex flex-1 justify-center w-full">
         <div className="flex flex-col sm:flex-row w-[95%] border mt-4">
           <div className="flex-grow p-6 text-gray-700 bg-gray-50 w-full">
+            <div className="">
+              <button
+                onClick={() => navigate("/admin/dashboard/")}
+                className="text-gray-600 px-6 py-2  hover:cursor-pointer"
+              >
+                <IoMdArrowBack className="inline-block" />
+                Back to Admin Panel
+              </button>
+            </div>
             <h1 className="text-2xl font-bold mb-6 ml-0 sm:ml-6 font-playfair">
               My Customers ({customers.filter((c) => c.type !== "admin").length}
               )

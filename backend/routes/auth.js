@@ -12,6 +12,7 @@ const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
 const adminOrderController = require("../controllers/adminOrderController");
 const adminUserController = require("../controllers/adminUserController");
+const adminProductController = require("../controllers/adminProductController");
 
 // Configure multer for file storage - MOVE THIS TO THE TOP
 const storage = multer.diskStorage({
@@ -134,6 +135,79 @@ router.get(
   adminOrderController.checkAdminAccess,
   adminUserController.getAllUsers
 );
+
+// Add these routes
+router.get(
+  "/admin/customers/:userId",
+  auth,
+  adminUserController.getCustomerDetails
+);
+router.get(
+  "/admin/customers/:userId/orders",
+  auth,
+  adminUserController.getCustomerOrders
+);
+router.delete(
+  "/admin/customers/:userId",
+  auth,
+  adminUserController.deleteCustomer
+);
+
+// Add these routes to your auth.js file, replacing the existing admin products routes
+
+// ADMIN PRODUCT ROUTES (add proper middleware)
+router.get(
+  "/admin/products",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.getAllProducts
+);
+
+router.get(
+  "/admin/products/stats",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.getProductStats
+);
+
+router.get(
+  "/admin/products/:productId",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.getProductDetails
+);
+
+router.put(
+  "/admin/products/:productId",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.updateProduct
+);
+
+router.put(
+  "/admin/products/:productId/stock",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.updateStock
+);
+
+router.delete(
+  "/admin/products/:productId",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.deleteProduct
+);
+
+router.put(
+  "/admin/products/:productId",
+  auth,
+  adminProductController.checkAdminAccess,
+  adminProductController.updateProduct
+);
+
+// Replace your existing line:
+// router.get("/admin/products", auth, adminProductController.getAllProducts);
+// with the routes above
 
 // Order routes
 router.post("/orders", auth, orderController.createOrder);

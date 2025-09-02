@@ -28,7 +28,7 @@ function AdminHome() {
     { name: "Products", path: "products" },
     { name: "Account Details", path: "details" },
     { name: "Customers", path: "customers" },
-    { name: "Inventory", path: "inventory" },
+    // { name: "Inventory", path: "inventory" },
     { name: "Logout", path: "loginPage" },
   ];
 
@@ -37,7 +37,7 @@ function AdminHome() {
     { name: "Products", icon: <BsBox2 />, path: "products" },
     { name: "Account details", icon: <BsPeople />, path: "details" },
     { name: "Customers", icon: <SlPeople />, path: "customers" },
-    { name: "Inventory", icon: <MdOutlineInventory2 />, path: "inventory" },
+    // { name: "Inventory", icon: <MdOutlineInventory2 />, path: "inventory" },
     { name: "Logout", icon: <CiLogout />, path: "loginPage" },
   ];
 
