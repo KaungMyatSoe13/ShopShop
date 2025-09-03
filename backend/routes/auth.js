@@ -15,8 +15,16 @@ const adminOrderController = require("../controllers/adminOrderController");
 const adminUserController = require("../controllers/adminUserController");
 const adminProductController = require("../controllers/adminProductController");
 
+const upload = require("../middleware/uploadMiddleware");
+const {
+  uploadImages,
+  addProduct,
+  getProducts,
+} = require("../controllers/ProductController");
+
 // Middleware
 const auth = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Configure multer for file storage
 const storage = multer.diskStorage({
@@ -28,7 +36,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage: storage });
 
 // =====================================================
 // AUTHENTICATION ROUTES
@@ -239,5 +247,15 @@ router.delete(
   adminProductController.checkAdminAccess,
   adminProductController.deleteProduct
 );
+
+// Use the Cloudinary upload middleware
+router.post(
+  "/upload-images",
+  authMiddleware,
+  upload.array("images", 10),
+  uploadImages
+);
+router.post("/products", authMiddleware, addProduct);
+router.get("/products", getProducts);
 
 module.exports = router;

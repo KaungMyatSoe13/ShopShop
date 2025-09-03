@@ -10,6 +10,9 @@ function AdminEditProduct() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [currentVariant, setCurrentVariant] = useState({
+    images: [],
+  });
 
   const [product, setProduct] = useState({
     batchName: "",
@@ -57,6 +60,56 @@ function AdminEditProduct() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const removeSelectedImage = (variantIndex, imageIndex) => {
+    setProduct((prev) => ({
+      ...prev,
+      variants: prev.variants.map((variant, index) =>
+        index === variantIndex
+          ? {
+              ...variant,
+              tempImages:
+                variant.tempImages?.filter((_, i) => i !== imageIndex) || [],
+            }
+          : variant
+      ),
+    }));
+  };
+
+  const removeExistingImage = (variantIndex, imageIndex) => {
+    setProduct((prev) => ({
+      ...prev,
+      variants: prev.variants.map((variant, index) =>
+        index === variantIndex
+          ? {
+              ...variant,
+              images: variant.images.filter((_, i) => i !== imageIndex),
+            }
+          : variant
+      ),
+    }));
+  };
+
+  const uploadImages = async (files) => {
+    if (!files || files.length === 0) return [];
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append("images", file);
+      });
+      const res = await fetch("http://localhost:5000/api/auth/upload-images", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      return res.ok ? data.imageUrls : [];
+    } catch (err) {
+      console.error("Error uploading images:", err);
+      return [];
     }
   };
 
@@ -187,16 +240,54 @@ function AdminEditProduct() {
         setError(`Variant ${i + 1}: Color is required`);
         return;
       }
-      if (variant.images.length === 0 || variant.images[0] === "") {
-        setError(`Variant ${i + 1}: At least one image URL is required`);
+
+      // Check if variant has either existing images or new images to upload
+      const hasExistingImages = variant.images && variant.images.length > 0;
+      const hasNewImages = variant.tempImages && variant.tempImages.length > 0;
+
+      if (!hasExistingImages && !hasNewImages) {
+        setError(`Variant ${i + 1}: At least one image is required`);
         return;
       }
     }
 
     try {
       setSaving(true);
-      const token = localStorage.getItem("token");
+      setError(null);
 
+      // Process variants to upload new images
+      const updatedVariants = await Promise.all(
+        product.variants.map(async (variant) => {
+          let finalImages = [...(variant.images || [])]; // Keep existing images
+
+          // Upload new images if any
+          if (variant.tempImages && variant.tempImages.length > 0) {
+            try {
+              const newImageUrls = await uploadImages(variant.tempImages);
+              finalImages = [...finalImages, ...newImageUrls];
+            } catch (uploadError) {
+              console.error("Error uploading images for variant:", uploadError);
+              throw new Error(
+                `Failed to upload images for variant with color: ${variant.color}`
+              );
+            }
+          }
+
+          // Return variant without tempImages
+          const { tempImages, ...cleanVariant } = variant;
+          return {
+            ...cleanVariant,
+            images: finalImages,
+          };
+        })
+      );
+
+      const updatedProduct = {
+        ...product,
+        variants: updatedVariants,
+      };
+
+      const token = localStorage.getItem("token");
       const response = await fetch(
         `${BACKEND_URL}/api/admin/products/${productId}`,
         {
@@ -205,7 +296,7 @@ function AdminEditProduct() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(product),
+          body: JSON.stringify(updatedProduct),
         }
       );
 
@@ -217,6 +308,7 @@ function AdminEditProduct() {
       alert("Product updated successfully!");
       navigate("/admin/products");
     } catch (err) {
+      console.error("Submit error:", err);
       setError(err.message);
     } finally {
       setSaving(false);
@@ -460,48 +552,75 @@ function AdminEditProduct() {
                 {/* Images */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Image URLs *
+                    Images
                   </label>
-                  {variant.images.map((image, imageIndex) => (
-                    <div key={imageIndex} className="flex gap-2 mb-2">
-                      <input
-                        type="url"
-                        value={image}
-                        onChange={(e) =>
-                          updateImageUrl(
-                            variantIndex,
-                            imageIndex,
-                            e.target.value
-                          )
-                        }
-                        className="flex-1 px-3 py-2 border border-gray-300  -md focus:ring-2 focus:ring-black focus:border-transparent"
-                        placeholder="https://example.com/image.jpg"
-                      />
-                      {image && (
-                        <img
-                          src={image}
-                          alt="Preview"
-                          className="w-12 h-12 object-cover   border"
-                        />
-                      )}
-                      {variant.images.length > 1 && (
-                        <button
-                          onClick={() =>
-                            removeImageUrl(variantIndex, imageIndex)
-                          }
-                          className="text-red-600 hover:text-red-800 px-2 hover:cursor-pointer"
-                        >
-                          Remove
-                        </button>
-                      )}
+                  <input
+                    type="file"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      handleVariantChange(variantIndex, "tempImages", files);
+                    }}
+                    multiple
+                    accept="image/*"
+                    className="w-full border border-gray-300 py-2 px-4 rounded-md"
+                  />
+
+                  {/* Show selected files */}
+                  {variant.tempImages && variant.tempImages.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-600 mb-2">
+                        Selected images ({variant.tempImages.length}):
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {variant.tempImages.map((file, index) => (
+                          <div
+                            key={index}
+                            className="relative bg-gray-100 p-2 text-sm"
+                          >
+                            <span className="text-xs">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeSelectedImage(variantIndex, index)
+                              }
+                              className="ml-2 text-red-500 hover:text-red-700"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                  <button
-                    onClick={() => addImageUrl(variantIndex)}
-                    className="text-blue-600 hover:text-blue-800 text-sm hover:cursor-pointer"
-                  >
-                    + Add Image URL
-                  </button>
+                  )}
+
+                  {/* Show existing uploaded images */}
+                  {variant.images && variant.images.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-600 mb-2">
+                        Current images:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {variant.images.map((url, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={url}
+                              alt=""
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeExistingImage(variantIndex, index)
+                              }
+                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sizes and Stock */}
