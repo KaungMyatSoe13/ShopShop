@@ -87,8 +87,8 @@ function AdminOrders() {
                 <p className="text-lg mb-4">No orders found</p>
                 <p className="mb-6">There are no orders in the system yet.</p>
                 <button
-                  onClick={() => navigate("/")}
-                  className="bg-black text-white px-6 py-2 hover:bg-gray-800"
+                  onClick={() => navigate("/admin/dashboard")}
+                  className="bg-black text-white px-6 py-2 hover:bg-gray-800 hover:cursor-pointer"
                 >
                   Go Home
                 </button>

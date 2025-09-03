@@ -11,6 +11,10 @@ import ResetPassword from "../pages/ResetPassword";
 import CategoryPage from "../pages/CategoryPage";
 import ProductPage from "../pages/ProductPage";
 import OrderSuccess from "../pages/OrderSuccess";
+import Terms from "../pages/Terms";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import AboutUs from "../pages/About";
+import Contact from "../pages/Contact";
 
 export const PublicRoutes = (
   <>
@@ -32,5 +36,9 @@ export const PublicRoutes = (
     />
     <Route path="/product/:id" element={<ProductPage />} />
     <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+    <Route path="/about" element={<AboutUs />} />
+    <Route path="/contact" element={<Contact />} />
   </>
 );

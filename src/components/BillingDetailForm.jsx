@@ -202,7 +202,7 @@ function BillingDetailForm({
             />
             <span>Cash on Delivery</span>
           </label>
-          <label className="flex items-center gap-2">
+          {/* <label className="flex items-center gap-2">
             <input
               type="radio"
               name="paymentMethod"
@@ -212,7 +212,7 @@ function BillingDetailForm({
               className="accent-blue-600"
             />
             <span>KBZ Pay</span>
-          </label>
+          </label> */}
         </div>
         {errors.paymentMethod && (
           <p className="text-red-500 text-xs mt-1">{errors.paymentMethod}</p>

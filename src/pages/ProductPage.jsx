@@ -89,7 +89,7 @@ function ProductPage() {
           throw new Error("Product not found");
         }
         const productData = await response.json();
-
+        console.log("Fetched product data:", productData);
         setProduct(productData);
         // Set first variant as default if available
         if (productData.variants && productData.variants.length > 0) {
@@ -171,7 +171,7 @@ function ProductPage() {
 
       const favoriteData = {
         productId: product._id,
-        productName: product.name || product.title,
+        productName: product.itemName,
         productPrice: product.price,
         productImage: selectedVariant?.images?.[0] || product.images?.[0] || "",
         selectedColor: selectedVariant?.color || "",
@@ -194,6 +194,7 @@ function ProductPage() {
       if (response.ok) {
         const data = await response.json();
         setIsFavorited(data.isFavorited);
+
         // Optional: Show success message
         // You could add a toast notification here
       } else {
@@ -392,7 +393,7 @@ function ProductPage() {
 
             <img
               src={selectedImage}
-              alt={product.name || product.title}
+              alt={product.itemName || product.title}
               onClick={() => setShowPreview(true)}
               className={`w-full h-[78%] object-contain transition-all duration-300 cursor-pointer select-none`}
               style={{
@@ -424,7 +425,7 @@ function ProductPage() {
           {/* Product Info Section */}
           <div className="w-full md:w-1/2 space-y-4">
             <h1 className="text-3xl font-bold">
-              {product.name || product.title}
+              {product.itemName || product.title}
             </h1>
 
             {product.brand && (
@@ -573,9 +574,7 @@ function ProductPage() {
                       />
                     ) : (
                       <>
-                        <p>• Premium Quality Product</p>
-                        <p>• 100% Authentic</p>
-                        <p>• Comfortable Fit</p>
+                        <p>{product.description}</p>
                         {product.material && (
                           <p>• Material: {product.material}</p>
                         )}

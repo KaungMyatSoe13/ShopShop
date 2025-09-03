@@ -21,9 +21,9 @@ function Footer() {
           <NavLink to="/about" className="hover:underline">
             About
           </NavLink>
-          <NavLink to="/faq" className="hover:underline">
+          {/* <NavLink to="/faq" className="hover:underline">
             FAQ
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/privacy-policy" className="hover:underline">
             Privacy Policy
           </NavLink>

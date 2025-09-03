@@ -490,7 +490,7 @@ function AdminProducts() {
               {!searchTerm && (
                 <button
                   onClick={() => navigate("/admin/products/add")}
-                  className="bg-black text-white px-6 py-2 hover:bg-gray-800"
+                  className="bg-black text-white px-6 py-2 hover:bg-gray-800 hover:cursor-pointer"
                 >
                   Add Product
                 </button>

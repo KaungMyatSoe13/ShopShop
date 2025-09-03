@@ -157,7 +157,7 @@ function ShowCase() {
                 {item.name || item.itemName}
               </span>
               {isProductOutOfStock(item) ? (
-                <span className="font-bold text-red-600">Out of Stock</span>
+                <span className="font-semibold text-red-600">Out of Stock</span>
               ) : (
                 <span className="font-bold">${item.price}</span>
               )}
