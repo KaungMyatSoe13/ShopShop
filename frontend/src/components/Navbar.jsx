@@ -175,14 +175,6 @@ function Navbar() {
                   </ul>
                 )}
               </div>
-
-              <NavLink
-                to="/gallery"
-                onClick={() => setVisible(false)}
-                className="block py-2"
-              >
-                Gallery
-              </NavLink>
             </nav>
           </div>
         </div>

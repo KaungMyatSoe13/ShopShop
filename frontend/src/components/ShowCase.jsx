@@ -108,16 +108,16 @@ function ShowCase() {
           {/* Go To Shop button */}
           <NavLink
             to="shop"
-            className="mt-auto flex justify-center items-center h-10 w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
+            className="mt-auto flex justify-center items-center h-10 sm:w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
           >
-            <div className="flex items-center font-playfair font-semibold text-black text-sm sm:text-md w-full">
+            <div className="flex items-center font-playfair font-semibold text-black text-sm sm:text-md sm:w-full">
               Go To Shop
               <HiOutlineArrowLongRight className="ml-auto sm:text-3xl text-xl" />
             </div>
           </NavLink>
 
           {/* Arrows */}
-          <div className="flex justify-between w-full sm:w-auto mt-auto gap-2 sm:gap-3">
+          <div className="hidden sm:flex justify-between w-full sm:w-auto mt-auto gap-2 sm:gap-3">
             <div
               onClick={scrollLeft}
               className="border border-black p-1 cursor-pointer"
