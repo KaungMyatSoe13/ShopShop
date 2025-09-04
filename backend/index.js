@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // Local development
-      "https://shop-shop-theta.vercel.app", // Your Vercel frontend
+      "https://shop-shop-pied.vercel.app", // Your Vercel frontend
     ],
     credentials: true,
   })
