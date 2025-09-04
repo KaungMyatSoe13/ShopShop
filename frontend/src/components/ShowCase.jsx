@@ -86,7 +86,7 @@ function ShowCase() {
   return (
     <div className="ml-7.5 flex-col flex w-full h-190 sm:h-full sm:flex-row sm:ml-13">
       {/* LEFT SIDE */}
-      <div className="sm:w-[40%] flex flex-col sm:mb-0 sm:h-full h-[35%]">
+      <div className="sm:w-[40%] flex flex-col sm:mb-0 sm:h-full sm:h-[35%] h-[20%]">
         <div className="flex flex-row items-center gap-1 bg-[#D9D9D9] px-3 py-1 w-[85%] h-[40px] sm:z-10 sm:w-full">
           <GrSearch />
           <input
@@ -108,7 +108,7 @@ function ShowCase() {
           {/* Go To Shop button */}
           <NavLink
             to="shop"
-            className="hidden sm:flex justify-center items-center h-10 sm:w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
+            className="mt-auto hidden sm:flex justify-center items-center h-10 sm:w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
           >
             <div className="flex items-center font-playfair font-semibold text-black text-sm sm:text-md sm:w-full">
               Go To Shop
