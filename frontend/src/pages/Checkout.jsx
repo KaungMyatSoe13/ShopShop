@@ -49,7 +49,7 @@ function Checkout() {
   const saveAsDefaultAddress = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://localhost:5000/api/auth/save-address", {
+      await fetch(`${BACKEND_URL}api/auth/save-address`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +107,7 @@ function Checkout() {
       };
 
       // Use different endpoints for guest vs authenticated users
-      const endpoint = isGuest ? "/api/auth/guest-orders" : "/api/auth/orders";
+      const endpoint = isGuest ? "api/auth/guest-orders" : "api/auth/orders";
       const headers = {
         "Content-Type": "application/json",
       };

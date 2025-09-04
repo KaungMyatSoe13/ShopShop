@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const { changePassword } = require("./userController");
 require("dotenv").config();
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 // Email transporter for password reset emails
 let transporter = nodemailer.createTransport({
   service: "gmail",
@@ -134,20 +136,17 @@ exports.resetPassword = async (req, res) => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/change-password",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            currentPassword,
-            newPassword,
-          }),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}api/auth/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
 
       const data = await response.json();
 

@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import ProfileSideBar from "../adminComponents/ProfileSideBar";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 function AddProduct() {
   const formRef = useRef(null);
 
@@ -43,7 +45,7 @@ function AddProduct() {
       Array.from(files).forEach((file) => {
         formData.append("images", file);
       });
-      const res = await fetch("http://localhost:5000/api/auth/upload-images", {
+      const res = await fetch(`${BACKEND_URL}api/auth/upload-images`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -227,7 +229,7 @@ function AddProduct() {
         genders: updatedGenders,
       };
 
-      const res = await fetch("http://localhost:5000/api/auth/products", {
+      const res = await fetch(`${BACKEND_URL}api/auth/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

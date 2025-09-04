@@ -43,7 +43,7 @@ function AdminEditProduct() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/admin/products/${productId}`,
+        `${BACKEND_URL}api/admin/products/${productId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -100,7 +100,7 @@ function AdminEditProduct() {
       Array.from(files).forEach((file) => {
         formData.append("images", file);
       });
-      const res = await fetch("http://localhost:5000/api/auth/upload-images", {
+      const res = await fetch(`${BACKEND_URL}api/auth/upload-images`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -289,7 +289,7 @@ function AdminEditProduct() {
 
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${BACKEND_URL}/api/admin/products/${productId}`,
+        `${BACKEND_URL}api/admin/products/${productId}`,
         {
           method: "PUT",
           headers: {

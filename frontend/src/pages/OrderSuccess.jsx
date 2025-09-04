@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function OrderSuccess() {
   const { orderId } = useParams();
@@ -23,15 +24,15 @@ function OrderSuccess() {
     try {
       const token = localStorage.getItem("token");
       const endpoint = token
-        ? `/api/auth/orders/${orderId}`
-        : `/api/auth/guest-orders/${orderId}`;
+        ? `api/auth/orders/${orderId}`
+        : `api/auth/guest-orders/${orderId}`;
 
       const headers = {};
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
         headers,
       });
       // ... rest of the function

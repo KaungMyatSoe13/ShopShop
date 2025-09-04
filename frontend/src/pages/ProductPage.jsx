@@ -7,6 +7,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function Collapsible({ isOpen, children }) {
   return (
@@ -82,9 +83,7 @@ function ProductPage() {
       setError(null);
 
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
-        );
+        const response = await fetch(`${BACKEND_URL}api/products/${id}`);
         if (!response.ok) {
           throw new Error("Product not found");
         }
@@ -125,7 +124,7 @@ function ProductPage() {
         }
 
         console.log("Checking favorite status for product:", id);
-        const url = `http://localhost:5000/api/favorites/check/${id}`;
+        const url = `${BACKEND_URL}api/favorites/check/${id}`;
         console.log("Request URL:", url);
 
         const response = await fetch(url, {
@@ -179,17 +178,14 @@ function ProductPage() {
       };
 
       // Updated URL to match your working API path
-      const response = await fetch(
-        `http://localhost:5000/api/favorites/toggle`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(favoriteData),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}api/favorites/toggle`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(favoriteData),
+      });
 
       if (response.ok) {
         const data = await response.json();

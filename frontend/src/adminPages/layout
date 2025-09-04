@@ -1,0 +1,29 @@
+import React from "react";
+import ProfileSideBar from "../adminComponents/ProfileSideBar";
+
+function AddProduct() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-1 justify-center h-full">
+        <div className="flex flex-col sm:flex-row w-[95%] border my-4 ">
+          <ProfileSideBar />
+
+          <div className="flex-grow p-6 text-gray-700 bg-gray-50 w-full h-full">
+            <div className="max-w-7xl mx-auto h-full">
+              <div className="text-center flex justify-center">
+                <p className="text-sm mt-2 max-w-xl">
+                  Admin panel to manage products, orders, users, and store
+                  operations.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6 w-full h-[80%]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default AddProduct;

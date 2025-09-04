@@ -19,7 +19,7 @@ function AdminCustomers() {
           return;
         }
 
-        const url = `${BACKEND_URL}/api/admin/customers`; // Admin endpoint
+        const url = `${BACKEND_URL}api/admin/customers`; // Admin endpoint
         const res = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ function AdminCustomers() {
                     There are no customers in the system yet.
                   </p>
                   <button
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/admin/dashboard")}
                     className="bg-black text-white px-6 py-2 hover:bg-gray-800"
                   >
                     Go Home

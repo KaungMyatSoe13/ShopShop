@@ -5,6 +5,8 @@ import ProfileSideBar from "../adminComponents/ProfileSideBar";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 function AccountDetails() {
   const [user, setUser] = useState({
     email: "",
@@ -41,7 +43,7 @@ function AccountDetails() {
           setLoading(false);
           return;
         }
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${BACKEND_URL}api/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -85,7 +87,7 @@ function AccountDetails() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/auth/profile", {
+      const response = await fetch(`${BACKEND_URL}api/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +118,7 @@ function AccountDetails() {
     setResendLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/user/resend-verification",
+        `${BACKEND_URL}api/auth/user/resend-verification`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -162,20 +164,17 @@ function AccountDetails() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/change-password",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            currentPassword,
-            newPassword,
-          }),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}api/auth/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
 
       const data = await response.json();
 

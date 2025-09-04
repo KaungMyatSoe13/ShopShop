@@ -4,6 +4,8 @@ import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // Adjust path as needed
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 function LoginForm() {
   const [isSignup, setIsSignup] = useState(true);
   // State for sign up fields
@@ -71,7 +73,7 @@ function LoginForm() {
 
   const handleCredentialResponse = async (response) => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/google", {
+      const res = await fetch(`${BACKEND_URL}api/auth/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +127,7 @@ function LoginForm() {
     }
     setSignupLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch(`${BACKEND_URL}api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -164,7 +166,7 @@ function LoginForm() {
     setLoginError("");
     setLoginLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${BACKEND_URL}api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

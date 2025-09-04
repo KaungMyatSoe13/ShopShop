@@ -17,7 +17,7 @@ function Order() {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-        let url = `${BACKEND_URL}/api/auth/orders`;
+        let url = `${BACKEND_URL}api/auth/orders`;
         let options = { headers: {} };
 
         if (token) {

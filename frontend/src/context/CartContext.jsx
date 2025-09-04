@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
 
   const fetchCartFromDB = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/cart`, {
+      const response = await fetch(`${BACKEND_URL}api/auth/cart`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -115,7 +115,7 @@ export const CartProvider = ({ children }) => {
   ) => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/add`, {
+        const response = await fetch(`${BACKEND_URL}api/auth/cart/add`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -187,7 +187,7 @@ export const CartProvider = ({ children }) => {
 
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/${itemId}`, {
+        const response = await fetch(`${BACKEND_URL}api/auth/cart/${itemId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -217,7 +217,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (itemId) => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/${itemId}`, {
+        const response = await fetch(`${BACKEND_URL}api/auth/cart/${itemId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -243,7 +243,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart`, {
+        const response = await fetch(`${BACKEND_URL}api/auth/cart`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

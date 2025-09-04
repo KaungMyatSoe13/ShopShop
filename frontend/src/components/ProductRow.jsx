@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function ProductRow({
   currentPage,
@@ -15,7 +16,7 @@ function ProductRow({
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:5000/api/products/by-color");
+        const res = await fetch(`${BACKEND_URL}api/products/by-color`);
         const data = await res.json();
 
         // Filter by category
