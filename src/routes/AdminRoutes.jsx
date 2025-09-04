@@ -1,7 +1,7 @@
 // src/routes/AdminRoutes.jsx
 import React from "react";
 import { Route } from "react-router-dom";
-import AdminHome from "../adminPages/adminHome";
+import AdminHome from "../adminPages/AdminHome";
 import AdminProduct from "../adminPages/AdminProducts";
 import AddProduct from "../adminPages/AddProduct";
 import AccountDetails from "../adminPages/AccountDetails";
