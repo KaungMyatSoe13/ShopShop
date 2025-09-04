@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const { changePassword } = require("./userController");
 require("dotenv").config();
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 // Email transporter for password reset emails
 let transporter = nodemailer.createTransport({
