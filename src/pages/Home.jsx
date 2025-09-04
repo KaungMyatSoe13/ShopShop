@@ -1,9 +1,9 @@
 import React from "react";
-import Navbar from "../components/navbar";
+import Navbar from "../components/Navbar";
 import Genders_SearchBar from "../components/Genders_SearchBar";
 import ShowCase from "../components/ShowCase";
 
-function home() {
+function Home() {
   return (
     <div>
       <Navbar />
@@ -13,4 +13,4 @@ function home() {
   );
 }
 
-export default home;
+export default Home;
