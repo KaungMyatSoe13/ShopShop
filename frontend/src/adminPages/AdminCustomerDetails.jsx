@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoMdArrowBack } from "react-icons/io";
 
-const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function AdminCustomerDetails() {
   const { userId } = useParams();

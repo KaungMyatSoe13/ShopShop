@@ -12,13 +12,13 @@ function ShowCase() {
   const scrollRef = useRef();
   const navigate = useNavigate();
 
-  const BACKEND_URL = process.env.VITE_BACKEND_URL;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch all products once on mount
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/auth/products`);
+        const res = await fetch(`${BACKEND_URL}api/auth/products`);
         const data = await res.json();
 
         // Filter for new arrivals only (last 30 days)

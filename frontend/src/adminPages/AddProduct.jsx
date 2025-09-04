@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import ProfileSideBar from "../adminComponents/ProfileSideBar";
 
-const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function AddProduct() {
   const formRef = useRef(null);

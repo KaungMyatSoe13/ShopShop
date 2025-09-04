@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import ProfileSideBar from "../components/ProfileSideBar";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
-const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function AccountDetails() {
   const [user, setUser] = useState({

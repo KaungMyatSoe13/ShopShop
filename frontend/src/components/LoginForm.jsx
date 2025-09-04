@@ -4,7 +4,7 @@ import { FaEyeSlash } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { useCart } from "../context/CartContext"; // Adjust path as needed
 
-const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function LoginForm() {
   const [isSignup, setIsSignup] = useState(true);
@@ -32,7 +32,7 @@ function LoginForm() {
     document.body.appendChild(script);
 
     script.onload = () => {
-      const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
+      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       if (!clientId) {
         console.error("Google Client ID is not defined in .env!");
         return;
