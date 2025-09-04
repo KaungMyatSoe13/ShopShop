@@ -15,14 +15,14 @@ function OrderDetail() {
     const fetchOrderDetail = async () => {
       try {
         const token = localStorage.getItem("token");
-        let url = `${BACKEND_URL}api/auth/orders/${orderId}`;
+        let url = `${BACKEND_URL}/api/auth/orders/${orderId}`;
         let options = { headers: {} };
 
         if (token) {
           options.headers.Authorization = `Bearer ${token}`;
         } else {
           // For guest orders, use guest endpoint
-          url = `${BACKEND_URL}api/auth/guest-orders/${orderId}`;
+          url = `${BACKEND_URL}/api/auth/guest-orders/${orderId}`;
         }
 
         const res = await fetch(url, options);

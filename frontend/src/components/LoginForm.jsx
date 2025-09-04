@@ -73,7 +73,7 @@ function LoginForm() {
 
   const handleCredentialResponse = async (response) => {
     try {
-      const res = await fetch(`${BACKEND_URL}api/auth/google`, {
+      const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +127,7 @@ function LoginForm() {
     }
     setSignupLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}api/auth/register`, {
+      const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -166,7 +166,7 @@ function LoginForm() {
     setLoginError("");
     setLoginLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}api/auth/login`, {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

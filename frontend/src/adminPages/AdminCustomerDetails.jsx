@@ -25,7 +25,7 @@ function AdminCustomerDetails() {
 
         // Fetch customer details
         const customerRes = await fetch(
-          `${BACKEND_URL}api/admin/customers/${userId}`,
+          `${BACKEND_URL}/api/admin/customers/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -40,7 +40,7 @@ function AdminCustomerDetails() {
 
         // Fetch customer's orders
         const ordersRes = await fetch(
-          `${BACKEND_URL}api/admin/customers/${userId}/orders`,
+          `${BACKEND_URL}/api/admin/customers/${userId}/orders`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -72,7 +72,7 @@ function AdminCustomerDetails() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${BACKEND_URL}api/admin/customers/${userId}`,
+        `${BACKEND_URL}/api/admin/customers/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

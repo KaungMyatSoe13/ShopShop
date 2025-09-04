@@ -24,8 +24,8 @@ function OrderSuccess() {
     try {
       const token = localStorage.getItem("token");
       const endpoint = token
-        ? `api/auth/orders/${orderId}`
-        : `api/auth/guest-orders/${orderId}`;
+        ? `/api/auth/orders/${orderId}`
+        : `/api/auth/guest-orders/${orderId}`;
 
       const headers = {};
       if (token) {

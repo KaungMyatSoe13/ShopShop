@@ -28,8 +28,8 @@ function AdminProducts() {
         return;
       }
 
-      // Fixed URL - add /api prefix
-      const url = `${BACKEND_URL}api/admin/products?page=${page}&limit=12&search=${search}`;
+      // Fixed URL - add //api prefix
+      const url = `${BACKEND_URL}/api/admin/products?page=${page}&limit=12&search=${search}`;
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -54,7 +54,7 @@ function AdminProducts() {
     try {
       const token = localStorage.getItem("token");
       // Fixed URL - correct path
-      const res = await fetch(`${BACKEND_URL}api/admin/products/stats`, {
+      const res = await fetch(`${BACKEND_URL}/api/admin/products/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -118,10 +118,13 @@ function AdminProducts() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BACKEND_URL}api/admin/products/${productId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${BACKEND_URL}/api/admin/products/${productId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (res.ok) {
         alert("Product deleted successfully");

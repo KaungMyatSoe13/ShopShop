@@ -19,7 +19,7 @@ function AdminCustomers() {
           return;
         }
 
-        const url = `${BACKEND_URL}api/admin/customers`; // Admin endpoint
+        const url = `${BACKEND_URL}/api/admin/customers`; // Admin endpoint
         const res = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,

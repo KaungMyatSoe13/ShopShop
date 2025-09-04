@@ -72,7 +72,7 @@ function Favourite() {
         return;
       }
 
-      const response = await fetch(`${BACKEND_URL}api/favorites`, {
+      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -86,7 +86,7 @@ function Favourite() {
             if (!item.productName || !item.productImage || !item.productPrice) {
               try {
                 const productRes = await fetch(
-                  `${BACKEND_URL}api/products/${item.productId}`
+                  `${BACKEND_URL}/api/products/${item.productId}`
                 );
                 if (productRes.ok) {
                   const product = await productRes.json();
@@ -127,10 +127,13 @@ function Favourite() {
         return;
       }
 
-      const response = await fetch(`${BACKEND_URL}api/favorites/${productId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/favorites/${productId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.ok) {
         setFavorites(favorites.filter((item) => item.productId !== productId));

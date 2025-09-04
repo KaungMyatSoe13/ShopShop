@@ -83,7 +83,7 @@ function ProductPage() {
       setError(null);
 
       try {
-        const response = await fetch(`${BACKEND_URL}api/products/${id}`);
+        const response = await fetch(`${BACKEND_URL}/api/products/${id}`);
         if (!response.ok) {
           throw new Error("Product not found");
         }
@@ -124,7 +124,7 @@ function ProductPage() {
         }
 
         console.log("Checking favorite status for product:", id);
-        const url = `${BACKEND_URL}api/favorites/check/${id}`;
+        const url = `${BACKEND_URL}/api/favorites/check/${id}`;
         console.log("Request URL:", url);
 
         const response = await fetch(url, {
@@ -177,8 +177,8 @@ function ProductPage() {
         selectedSize: size || "",
       };
 
-      // Updated URL to match your working API path
-      const response = await fetch(`${BACKEND_URL}api/favorites/toggle`, {
+      // Updated URL to match your working /api path
+      const response = await fetch(`${BACKEND_URL}/api/favorites/toggle`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

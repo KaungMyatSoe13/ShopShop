@@ -16,7 +16,7 @@ function ProductRow({
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${BACKEND_URL}api/products/by-color`);
+        const res = await fetch(`${BACKEND_URL}/api/products/by-color`);
         const data = await res.json();
 
         // Filter by category

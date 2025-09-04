@@ -32,7 +32,7 @@ function AdminOrderDetails() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}api/admin/orders/${orderId}`,
+        `${BACKEND_URL}/api/admin/orders/${orderId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ function AdminOrderDetails() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${BACKEND_URL}api/admin/orders/${orderId}/status`,
+        `${BACKEND_URL}/api/admin/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: {
