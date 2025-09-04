@@ -108,7 +108,7 @@ function ShowCase() {
           {/* Go To Shop button */}
           <NavLink
             to="shop"
-            className="mt-auto flex justify-center items-center h-10 sm:w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
+            className="hidden sm:flex justify-center items-center h-10 sm:w-full sm:w-4/5 bg-[#D9D9D9] hover:bg-gray-400 transition-colors duration-300 px-4"
           >
             <div className="flex items-center font-playfair font-semibold text-black text-sm sm:text-md sm:w-full">
               Go To Shop
