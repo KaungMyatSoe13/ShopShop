@@ -91,9 +91,23 @@ exports.register = async (req, res) => {
       verified: false,
       type: "user",
     });
-    await user.save().then((result) => {
-      sendVerificationEmail(result, res);
+
+    const savedUser = await user.save();
+
+    // Send response FIRST
+    res.status(201).json({
+      message:
+        "User registered successfully! Please check your email for verification.",
+      userId: savedUser._id,
     });
+
+    // Send email asynchronously (don't wait for it)
+    try {
+      sendVerificationEmail(savedUser, null);
+    } catch (emailError) {
+      console.log("Email sending failed:", emailError);
+      // Don't let email failure affect registration
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
