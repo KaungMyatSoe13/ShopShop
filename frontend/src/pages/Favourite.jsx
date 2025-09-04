@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { RxCross2 } from "react-icons/rx";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function WishlistItem({ id, name, price, image, color, size, onRemove }) {
   const handleItemClick = () => {

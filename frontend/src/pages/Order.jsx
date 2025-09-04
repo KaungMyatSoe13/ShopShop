@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProfileSideBar from "../components/ProfileSideBar";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function Order() {
   const [orders, setOrders] = useState([]);

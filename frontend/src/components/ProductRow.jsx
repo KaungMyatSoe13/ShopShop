@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function ProductRow({
   currentPage,

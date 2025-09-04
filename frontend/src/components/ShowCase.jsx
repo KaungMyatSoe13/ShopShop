@@ -12,7 +12,7 @@ function ShowCase() {
   const scrollRef = useRef();
   const navigate = useNavigate();
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const BACKEND_URL = process.env.VITE_BACKEND_URL;
 
   // Fetch all products once on mount
   useEffect(() => {

@@ -7,7 +7,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 function Collapsible({ isOpen, children }) {
   return (
