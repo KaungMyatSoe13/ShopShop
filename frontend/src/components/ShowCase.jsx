@@ -18,7 +18,7 @@ function ShowCase() {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}api/auth/products`);
+        const res = await fetch(`${BACKEND_URL}/api/auth/products`);
         const data = await res.json();
 
         // Filter for new arrivals only (last 30 days)
