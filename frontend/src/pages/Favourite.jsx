@@ -71,8 +71,8 @@ function Favourite() {
         setError("Please login or create account to view your favorites");
         return;
       }
-
-      const response = await fetch(`${BACKEND_URL}/api/favorites`, {
+      const url = new URL("/api/favorites", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -85,9 +85,11 @@ function Favourite() {
           favs.map(async (item) => {
             if (!item.productName || !item.productImage || !item.productPrice) {
               try {
-                const productRes = await fetch(
-                  `${BACKEND_URL}/api/products/${item.productId}`
+                const url = new URL(
+                  `/api/products/${item.productId}`,
+                  BACKEND_URL
                 );
+                const productRes = await fetch(url.toString());
                 if (productRes.ok) {
                   const product = await productRes.json();
                   return {
@@ -127,13 +129,11 @@ function Favourite() {
         return;
       }
 
-      const response = await fetch(
-        `${BACKEND_URL}/api/favorites/${productId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const url = new URL(`/api/favorites/${productId}`, BACKEND_URL);
+      const response = await fetch(url.toString(), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.ok) {
         setFavorites(favorites.filter((item) => item.productId !== productId));

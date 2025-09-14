@@ -31,8 +31,8 @@ function OrderSuccess() {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
-
-      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+      const url = new URL(endpoint, BACKEND_URL);
+      const response = await fetch(url.toString(), {
         headers,
       });
       // ... rest of the function
@@ -239,7 +239,7 @@ function OrderSuccess() {
           <div className="text-center space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
             <button
               onClick={() => window.print()}
-              className="w-full sm:w-auto bg-gray-600 text-white px-6 py-2  hover:bg-gray-700 transition hover:cursor-pointer"
+              className="hidden sm:flex w-full sm:w-auto bg-gray-600 text-white px-6 py-2  hover:bg-gray-700 transition hover:cursor-pointer"
             >
               Print Order
             </button>

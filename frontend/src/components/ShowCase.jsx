@@ -18,7 +18,8 @@ function ShowCase() {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/auth/products`);
+        const url = new URL("/api/auth/products", BACKEND_URL);
+        const res = await fetch(url.toString());
         const data = await res.json();
 
         // Filter for new arrivals only (last 30 days)
@@ -84,7 +85,7 @@ function ShowCase() {
     );
   };
   return (
-    <div className="ml-7.5 flex-col flex w-full h-190 sm:h-full sm:flex-row sm:ml-13">
+    <div className="ml-7.5 flex-col flex w-full h-full sm:h-full sm:flex-row sm:ml-13">
       {/* LEFT SIDE */}
       <div className="sm:w-[40%] flex flex-col sm:mb-0 sm:h-full sm:h-[35%] h-[20%]">
         <div className="flex flex-row items-center gap-1 bg-[#D9D9D9] px-3 py-1 w-[85%] h-[40px] sm:z-10 sm:w-full">
@@ -104,7 +105,7 @@ function ShowCase() {
           Summer
         </span>
         <span className="font-bold font-fairplay font-thin text-sm">2025</span>
-        <div className="mb-5 sm:mb-0 flex flex-col sm:flex-row items-center gap-3 mt-5 sm:mt-0 h-98 relative">
+        <div className="hidden sm:flex mb-5 sm:mb-0 flex flex-col sm:flex-row items-center gap-3 mt-5 sm:mt-0 h-98 relative">
           {/* Go To Shop button */}
           <NavLink
             to="shop"
@@ -135,16 +136,17 @@ function ShowCase() {
       </div>
 
       {/* RIGHT SIDE - PRODUCTS */}
-      <div className="flex-grow w-full sm:w-[60%] overflow-x-auto flex flex-row sm:h-[91.3%] pb-0 font-playfair">
+      <div className=" w-full sm:w-[60%] flex flex-row sm:h-[91.3%] pb-0 font-playfair">
         <div
           ref={scrollRef}
-          className="object-cover sm:mx-2 flex flex-row flex-wrap sm:flex-nowrap w-[100vw] sm:w-[90%] h-auto border-black overflow-x-scroll sm:ml-5 sm:gap-5 gap-2 items-center mr-5"
+          className="flex flex-row  sm:w-full overflow-x-auto sm:overflow-x-visible gap-2 sm:gap-5 py-2 sm:py-0 "
+          style={{ scrollSnapType: "x mandatory" }} // optional for snapping
         >
           {filteredProducts.map((item) => (
             <div
               key={item._id}
               onClick={() => handleClick(item)}
-              className="flex flex-col items-start flex-shrink-0 w-[30vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer"
+              className="flex flex-col items-start flex-shrink-0 w-[70vw] sm:w-[50%] sm:h-135 px-2 hover:cursor-pointer scroll-snap-align-start"
             >
               <img
                 src={item.variants?.[0]?.images?.[0] || item.image}
@@ -154,7 +156,6 @@ function ShowCase() {
               <span className="text-[10px] text-gray-500 sm:text-xs">
                 {item.itemName || item.subCategory}
               </span>
-
               <span className="line-clamp-2 font-semibold">
                 {item.name || item.itemName}
               </span>

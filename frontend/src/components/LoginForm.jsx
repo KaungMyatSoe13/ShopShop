@@ -73,7 +73,8 @@ function LoginForm() {
 
   const handleCredentialResponse = async (response) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
+      const url = new URL("/api/auth/google", BACKEND_URL);
+      const res = await fetch(url.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,8 +84,8 @@ function LoginForm() {
       });
 
       const data = await res.json();
-      console.log("Response status:", res.status);
-      console.log("Response data:", data);
+      // console.log("Response status:", res.status);
+      // console.log("Response data:", data);
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
@@ -127,7 +128,8 @@ function LoginForm() {
     }
     setSignupLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      const url = new URL("/api/auth/register", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -166,7 +168,8 @@ function LoginForm() {
     setLoginError("");
     setLoginLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      const url = new URL("/api/auth/login", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -297,10 +300,7 @@ function LoginForm() {
                   {loginError}
                 </div>
               )}
-              <label className="mt-2 flex items-center space-x-2 mr-auto">
-                <input type="checkbox" className="w-4 h-4" />
-                <span>Remember me</span>
-              </label>
+
               <button
                 type="submit"
                 className="bg-primary text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors duration-300 w-80 mt-7 hover:cursor-pointer"
@@ -443,8 +443,8 @@ function LoginForm() {
               </div>
 
               {/* Mobile toggle link */}
-              <div className="mt-4 text-sm text-gray-600 sm:hidden">
-                Already have an account?{" "}
+              <div className="mt-4 text-sm text-gray-600 sm:hidden ">
+                Already have an account?
                 <span
                   className="text-blue-400 hover:cursor-pointer"
                   onClick={() => setIsSignup(true)}

@@ -44,8 +44,8 @@ function AccountDetails() {
           setLoading(false);
           return;
         }
-
-        const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        const url = new URL("/api/auth/me", BACKEND_URL);
+        const response = await fetch(url.toString(), {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -89,7 +89,8 @@ function AccountDetails() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+      const url = new URL("/api/auth/profile", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -119,14 +120,12 @@ function AccountDetails() {
   const handleResend = async () => {
     setResendLoading(true);
     try {
-      const response = await fetch(
-        `${BACKEND_URL}/api/auth/user/resend-verification`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email }),
-        }
-      );
+      const url = new URL("/api/auth/user/resend-verification", BACKEND_URL);
+      const response = await fetch(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
       const data = await response.json();
       if (response.ok) {
         setPasswordMessage("Password changed successfully");
@@ -166,7 +165,8 @@ function AccountDetails() {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/change-password`, {
+      const url = new URL("/api/auth/change-password", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

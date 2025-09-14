@@ -12,10 +12,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173", // Local development
-      "https://shop-shop-pied.vercel.app", // Your Vercel frontend
-    ],
+    origin: ["http://localhost:5173", "https://shop-shop-pied.vercel.app"],
     credentials: true,
   })
 );
@@ -23,7 +20,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api", authRoutes); // Add this line to make /api/products/by-color work
+app.use("/api", authRoutes);
 
 // Backward-compatibility redirects for older emailed links without /api/auth prefix
 app.get("/user/verify/:userId/:uniqueString", (req, res) => {
@@ -37,6 +34,7 @@ app.get("/user/verified", (req, res) => {
     }`
   );
 });
+
 app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {

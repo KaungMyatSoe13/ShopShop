@@ -15,7 +15,8 @@ function Addresses() {
     const fetchAddress = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${BACKEND_URL}/api/auth/addresses`, {
+        const url = new URL("/api/auth/addresses", BACKEND_URL);
+        const res = await fetch(url.toString(), {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch addresses");
@@ -72,7 +73,8 @@ function Addresses() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BACKEND_URL}/api/auth/save-address`, {
+      const url = new URL("/api/auth/save-address", BACKEND_URL);
+      const res = await fetch(url.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

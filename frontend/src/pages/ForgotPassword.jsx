@@ -17,7 +17,8 @@ function ForgotPassword() {
     setError("");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, {
+      const url = new URL("/api/auth/forgot-password", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

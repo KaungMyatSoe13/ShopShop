@@ -209,51 +209,51 @@ function Navbar() {
           </NavLink>
 
           {isLoggedIn ? (
-            <NavLink to="/profile">
-              <div className="group relative flex flex-col items-center cursor-pointer mx-2 mt-0.5">
+            <div className="group relative flex flex-col items-center cursor-pointer mx-2 mt-0.5">
+              <NavLink to="/profile">
                 <MdAccountCircle
                   className={`transition-all duration-300 ${
                     scrolled ? "h-6 w-6" : "h-7 w-7"
                   }`}
                 />
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-32 bg-white shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 delay-100">
-                  <ul className="flex flex-col text-gray-400 text-sm">
-                    <NavLink
-                      to="/profile/order"
-                      className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      Order
-                    </NavLink>
-                    <NavLink
-                      to="/profile"
-                      className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      Profile
-                    </NavLink>
-                  </ul>
-                </div>
+              </NavLink>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-32 bg-white shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 delay-100">
+                <ul className="flex flex-col text-gray-400 text-sm">
+                  <NavLink
+                    to="/profile/order"
+                    className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    Order
+                  </NavLink>
+                  <NavLink
+                    to="/profile"
+                    className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    Profile
+                  </NavLink>
+                </ul>
               </div>
-            </NavLink>
+            </div>
           ) : (
-            <NavLink to="/profile/loginPage">
-              <div className="group relative flex flex-col items-center cursor-pointer mx-2 mt-0.5">
+            <div className="group relative flex flex-col items-center cursor-pointer mx-2 mt-0.5">
+              <NavLink to="/profile/loginPage">
                 <MdAccountCircle
                   className={`transition-all duration-300 ${
                     scrolled ? "h-6 w-6" : "h-7 w-7"
                   }`}
                 />
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-32 bg-white shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 delay-100">
-                  <ul className="flex flex-col text-gray-400 text-sm">
-                    <NavLink
-                      to="/profile/loginPage"
-                      className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      Login
-                    </NavLink>
-                  </ul>
-                </div>
+              </NavLink>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-32 bg-white shadow-lg rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 delay-100">
+                <ul className="flex flex-col text-gray-400 text-sm">
+                  <NavLink
+                    to="/profile/loginPage"
+                    className="hover:text-black px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    Login
+                  </NavLink>
+                </ul>
               </div>
-            </NavLink>
+            </div>
           )}
         </li>
       </ul>

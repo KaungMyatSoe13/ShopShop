@@ -84,7 +84,8 @@ export const CartProvider = ({ children }) => {
 
   const fetchCartFromDB = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/cart`, {
+      const url = new URL("/api/auth/cart", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -115,7 +116,8 @@ export const CartProvider = ({ children }) => {
   ) => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/add`, {
+        const url = new URL("/api/auth/cart/add", BACKEND_URL);
+        const response = await fetch(url.toString(), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -187,7 +189,8 @@ export const CartProvider = ({ children }) => {
 
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/${itemId}`, {
+        const url = new URL(`/api/auth/cart/${itemId}`, BACKEND_URL);
+        const response = await fetch(url.toString(), {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -217,7 +220,8 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (itemId) => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart/${itemId}`, {
+        const url = new URL(`/api/auth/cart/${itemId}`, BACKEND_URL);
+        const response = await fetch(url.toString(), {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -243,7 +247,8 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     if (isLoggedIn) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/cart`, {
+        const url = new URL("/api/auth/cart", BACKEND_URL);
+        const response = await fetch(url.toString(), {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

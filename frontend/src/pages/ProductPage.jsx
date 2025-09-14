@@ -83,29 +83,17 @@ function ProductPage() {
       setError(null);
 
       try {
-        const response = await fetch(`${BACKEND_URL}/api/products/${id}`);
+        const url = new URL(`/api/products/${id}`, BACKEND_URL);
+        const response = await fetch(url.toString());
         if (!response.ok) {
           throw new Error("Product not found");
         }
         const productData = await response.json();
-        console.log("Fetched product data:", productData);
         setProduct(productData);
         // Set first variant as default if available
         if (productData.variants && productData.variants.length > 0) {
           setSelectedVariant(productData.variants[0]);
           setSelectedImageIndex(0);
-          // Set first available size as default
-          if (
-            productData.variants[0].sizes &&
-            productData.variants[0].sizes.length > 0
-          ) {
-            setSize(productData.variants[0].sizes[0].size);
-            // Check stock for the default selection
-            checkStock(
-              productData.variants[0].sizes[0].size,
-              productData.variants[0].color
-            );
-          }
         }
       } catch (error) {
         console.error("Failed to fetch product", error);
@@ -123,9 +111,7 @@ function ProductPage() {
           return; // User not logged in, skip favorite check
         }
 
-        console.log("Checking favorite status for product:", id);
-        const url = `${BACKEND_URL}/api/favorites/check/${id}`;
-        console.log("Request URL:", url);
+        const url = new URL(`/api/favorites/check/${id}`, BACKEND_URL);
 
         const response = await fetch(url, {
           headers: {
@@ -133,11 +119,8 @@ function ProductPage() {
           },
         });
 
-        console.log("Response status:", response.status);
-
         if (response.ok) {
           const data = await response.json();
-          console.log("Favorite status:", data.isFavorited);
           setIsFavorited(data.isFavorited);
         } else {
           console.error(
@@ -178,7 +161,8 @@ function ProductPage() {
       };
 
       // Updated URL to match your working /api path
-      const response = await fetch(`${BACKEND_URL}/api/favorites/toggle`, {
+      const url = new URL("/api/favorites/toggle", BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -289,18 +273,6 @@ function ProductPage() {
       alert("This item is out of stock");
       return;
     }
-
-    // Console logging for debugging
-    console.log("Adding to cart:", {
-      productId: product._id,
-      itemName: product.itemName,
-      size: size, // Changed from selectedSize
-      color: selectedVariant?.color, // Changed from selectedColor
-      quantity: quantity,
-      price: product.price,
-      availableStock: availableStock,
-    });
-
     try {
       await addToCart(
         product._id,
@@ -490,8 +462,11 @@ function ProductPage() {
             </div>
 
             {/* Quantity */}
+            {/* Quantity */}
             <div>
               <h3 className="font-semibold text-sm mb-2">Quantity</h3>
+
+              {/* Desktop: Number input */}
               <input
                 type="number"
                 min="1"
@@ -500,8 +475,27 @@ function ProductPage() {
                 onChange={(e) =>
                   setQuantity(Math.max(1, Number(e.target.value)))
                 }
-                className="w-20 px-3 py-2 border  focus:outline-none focus:ring-2 focus:ring-black"
+                className="hidden sm:block w-20 px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-black"
               />
+
+              {/* Mobile: Plus/Minus buttons */}
+              <div className="flex items-center gap-3 sm:hidden">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                  className="w-8 h-8 border border-gray-400 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  -
+                </button>
+                <span className="w-8 text-center font-medium">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                  disabled={quantity >= 10}
+                  className="w-8 h-8 border border-gray-400 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+              </div>
             </div>
             {size && selectedVariant?.color && (
               <p
@@ -509,9 +503,7 @@ function ProductPage() {
                   availableStock < 5 ? "text-red-600" : "text-green-600"
                 }`}
               >
-                {availableStock > 0
-                  ? `${availableStock} in stock`
-                  : "Out of stock"}
+                {availableStock > 0 ? `${availableStock} in stock` : ""}
               </p>
             )}
 

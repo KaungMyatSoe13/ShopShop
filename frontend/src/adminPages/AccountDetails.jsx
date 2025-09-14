@@ -43,7 +43,8 @@ function AccountDetails() {
           setLoading(false);
           return;
         }
-        const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        const url = new URL("/api/auth/me", BACKEND_URL);
+        const response = await fetch(url.toString(), {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

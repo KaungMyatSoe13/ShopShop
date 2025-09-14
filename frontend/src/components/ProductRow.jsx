@@ -16,7 +16,8 @@ function ProductRow({
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${BACKEND_URL}/api/products/by-color`);
+        const url = new URL("/api/products/by-color", BACKEND_URL);
+        const res = await fetch(url.toString());
         const data = await res.json();
 
         // Filter by category
@@ -151,7 +152,7 @@ function ProductRow({
   return (
     <div className="w-[90%] sm:w-[95vw] mx-auto mb-8">
       {/* Product Count */}
-      <div className="mb-4 text-gray-600 ml-5">
+      <div className="mb-4 text-gray-600 sm:ml-5">
         Showing {currentProducts.length} of {products.length} products
       </div>
 
@@ -165,11 +166,11 @@ function ProductRow({
               isProductOutOfStock(item) ? "opacity-60" : ""
             }`}
           >
-            <div className="relative w-full h-[250px] sm:h-[300px] overflow-hidden">
+            <div className="relative w-full h-[175px] sm:h-[250px] sm:h-[300px] overflow-hidden">
               <img
                 src={item.images?.[0]} // Use optional chaining for safety
                 alt={item.name || item.itemName}
-                className={`w-full h-full object-contain absolute inset-0 transition-transform duration-700 ease-in-out
+                className={`w-full sm:h-full object-contain absolute inset-0 transition-transform duration-700 ease-in-out
           ${
             item.images?.[1] ? "group-hover:opacity-0" : "group-hover:scale-110"
           } 

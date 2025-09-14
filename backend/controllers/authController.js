@@ -115,7 +115,7 @@ exports.register = async (req, res) => {
 
 // Login (Sign In)
 exports.login = async (req, res) => {
-  const { email, password, type } = req.body;
+  const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid Email" });

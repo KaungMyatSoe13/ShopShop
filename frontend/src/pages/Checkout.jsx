@@ -29,8 +29,6 @@ function Checkout() {
 
   // Handle input changes
   const handleInputChange = (e) => {
-    console.log("Input changed:", e.target.name, e.target.value); // Add this line
-
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -49,7 +47,8 @@ function Checkout() {
   const saveAsDefaultAddress = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${BACKEND_URL}/api/auth/save-address`, {
+      const url = new URL("/api/auth/save-address", BACKEND_URL);
+      await fetch(url.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +64,6 @@ function Checkout() {
           isDefault: true,
         }),
       });
-      console.log(formData.name);
     } catch (error) {
       console.error("Failed to save default address:", error);
     }
@@ -107,6 +105,7 @@ function Checkout() {
       };
 
       // Use different endpoints for guest vs authenticated users
+
       const endpoint = isGuest ? "/api/auth/guest-orders" : "/api/auth/orders";
       const headers = {
         "Content-Type": "application/json",
@@ -116,8 +115,8 @@ function Checkout() {
       if (!isGuest) {
         headers.Authorization = `Bearer ${token}`;
       }
-
-      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+      const url = new URL(endpoint, BACKEND_URL);
+      const response = await fetch(url.toString(), {
         method: "POST",
         headers,
         body: JSON.stringify(orderData),

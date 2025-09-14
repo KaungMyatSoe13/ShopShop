@@ -13,7 +13,7 @@ function ProfileSideBar() {
   ];
 
   return (
-    <div className="flex flex-col sm:w-[20%] pl-4 py-6 items-center sm:items-start justify-center sm:justify-start h-full">
+    <div className="hidden sm:flex flex-col sm:w-[20%] pl-4 py-6 items-center sm:items-start justify-center sm:justify-start h-full">
       <div className="text-xl font-playfair font-bold mb-4">My Account</div>
       <hr className="border-t border-gray-300 w-[70%] my-2" />
       <div className="flex flex-col items-center sm:items-start w-full">

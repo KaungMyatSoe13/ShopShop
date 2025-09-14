@@ -15,28 +15,10 @@ const adminOrderController = require("../controllers/adminOrderController");
 const adminUserController = require("../controllers/adminUserController");
 const adminProductController = require("../controllers/adminProductController");
 
-const upload = require("../middleware/uploadMiddleware");
-const {
-  uploadImages,
-  addProduct,
-  getProducts,
-} = require("../controllers/ProductController");
-
 // Middleware
 const auth = require("../middleware/authMiddleware");
-const authMiddleware = require("../middleware/authMiddleware");
 
-// Configure multer for file storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Make sure this folder exists
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-// const upload = multer({ storage: storage });
+const upload = require("../middleware/uploadMiddleware");
 
 // =====================================================
 // AUTHENTICATION ROUTES
@@ -251,11 +233,11 @@ router.delete(
 // Use the Cloudinary upload middleware
 router.post(
   "/upload-images",
-  authMiddleware,
+  auth,
   upload.array("images", 10),
-  uploadImages
+  productController.uploadImages
 );
-router.post("/products", authMiddleware, addProduct);
-router.get("/products", getProducts);
+router.post("/products", auth, productController.addProduct);
+router.get("/products", productController.getProducts);
 
 module.exports = router;
