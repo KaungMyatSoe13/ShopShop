@@ -16,6 +16,8 @@ function AdminHome() {
   const handleCardClick = (item) => {
     if (item.name === "Logout") {
       localStorage.removeItem("token");
+      localStorage.removeItem("userRole");
+
       navigate("/profile/loginPage");
     } else {
       navigate(`/admin/${item.path}`);

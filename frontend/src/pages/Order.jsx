@@ -27,7 +27,7 @@ function Order() {
           // Guest orders - you might need to implement this endpoint
           const guestEmail = localStorage.getItem("guestEmail");
           if (guestEmail) {
-            url += `?email=${guestEmail}`;
+            url.searchParams.set("email", guestEmail);
           }
         }
 

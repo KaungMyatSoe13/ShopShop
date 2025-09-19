@@ -16,6 +16,7 @@ function Profile() {
     if (item.name === "Logout") {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("userRole");
       // After logout
       window.dispatchEvent(new CustomEvent("authStateChanged"));
       navigate("/");

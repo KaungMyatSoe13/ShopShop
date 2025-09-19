@@ -184,6 +184,7 @@ function LoginForm() {
         window.dispatchEvent(new CustomEvent("authStateChanged"));
         console.log(data.user.type);
         if (data.user.type === "admin") {
+          localStorage.setItem("userRole", "admin");
           navigate("/admin/dashboard");
         } else {
           navigate("/");

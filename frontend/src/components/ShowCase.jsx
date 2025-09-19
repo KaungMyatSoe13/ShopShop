@@ -139,7 +139,7 @@ function ShowCase() {
       <div className=" w-full sm:w-[60%] flex flex-row sm:h-[91.3%] pb-0 font-playfair">
         <div
           ref={scrollRef}
-          className="flex flex-row  sm:w-full overflow-x-auto sm:overflow-x-visible gap-2 sm:gap-5 py-2 sm:py-0 "
+          className="flex flex-row  sm:w-full overflow-x-auto gap-2 sm:gap-5 py-2 sm:py-0 "
           style={{ scrollSnapType: "x mandatory" }} // optional for snapping
         >
           {filteredProducts.map((item) => (
