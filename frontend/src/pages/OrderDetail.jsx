@@ -22,6 +22,7 @@ function OrderDetail() {
         if (token) {
           options.headers.Authorization = `Bearer ${token}`;
         } else {
+          let url;
           // For guest orders, use guest endpoint
           url = new URL(`/api/auth/guest-orders/${orderId}`, BACKEND_URL);
         }
