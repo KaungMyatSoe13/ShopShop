@@ -22,16 +22,12 @@ function ShowCase() {
         const res = await fetch(url.toString());
         const data = await res.json();
 
-        // Filter for new arrivals only (last 30 days)
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        // Sort by createdAt (newest first) and take only 5
+        const latestProducts = data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5);
 
-        const newArrivals = data.filter((product) => {
-          const productDate = new Date(product.createdAt);
-          return productDate >= thirtyDaysAgo;
-        });
-
-        setAllProducts(newArrivals);
+        setAllProducts(latestProducts);
       } catch (error) {
         console.error("Failed to fetch products sir", error);
       }
